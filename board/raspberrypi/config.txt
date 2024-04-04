@@ -1,0 +1,20 @@
+start_file=start4.elf
+fixup_file=fixup4.dat
+kernel=zImage
+
+gpu_mem=16
+
+display_auto_detect=0
+hdmi_ignore_hotplug=1
+
+# Disable Bluetooth
+dtoverlay=disable-bt
+
+# Enable audio (loads snd_bcm2835)
+dtparam=audio=on
+
+# Speed up boot
+bootcode_delay=0
+boot_delay=0
+boot_delay_ms=0
+disable_splash=1
