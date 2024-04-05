@@ -1,0 +1,20 @@
+Description: Fix a spurious error with newer caps versions
+Origin: vendor, https://aur.archlinux.org/packages/alsaequal/?comments=all
+Forwarded: no
+Author: Alessandro Ghedini <ghedo@debian.org>
+Last-Update: 2013-08-30
+Applied-Upstream: *** FIXME ***
+
+--- a/ctl_equal.c
++++ b/ctl_equal.c
+@@ -263,8 +263,8 @@
+ 	for(i = 0; i < equal->num_input_controls; i++) {
+ 		if(equal->control_data->control[i].type == LADSPA_CNTRL_INPUT) {
+ 			index = equal->control_data->control[i].index;
+-			if(equal->klass->PortDescriptors[index] !=
+-					(LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL)) {
++			if((equal->klass->PortDescriptors[index] &
++					(LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL)) == 0) {
+ 				SNDERR("Problem with control file %s, %d.", controls, index);
+ 				return -1;
+ 			}

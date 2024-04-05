@@ -1,0 +1,17 @@
+--- alsaequal-0.6.original/Makefile	2010-03-05 17:30:39.000000000 +0000
++++ alsaequal-0.6/Makefile	2014-04-24 16:25:59.468030181 +0100
+@@ -4,10 +4,10 @@
+ #Q	?=
+ 
+ # Build Tools
+-CC 	:= gcc
+-CFLAGS := -I. -O2 -Wall -funroll-loops -ffast-math -fPIC -DPIC
+-LD := gcc
+-LDFLAGS := -O2 -Wall -shared -lasound
++CC 	?= gcc
++CFLAGS += -I. -Wall -ffast-math -fPIC -DPIC
++LD := $(CC)
++LDFLAGS := -shared -lasound
+ 
+ SND_PCM_OBJECTS = pcm_equal.o ladspa_utils.o
+ SND_PCM_LIBS =
