@@ -1,0 +1,19 @@
+#!/bin/sh
+
+start() {
+	echo "Disabling wifi power management :"
+	iw wlan0 set power_save off
+}
+
+stop() {
+	echo "Enabling wifi power management :"
+	iw wlan0 set power_save on
+}
+
+case "$1" in
+	start|stop)
+		"$1";;
+	*)
+		echo "Usage: $0 {start|stop}"
+		exit 1
+esac
