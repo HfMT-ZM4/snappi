@@ -1,4 +1,5 @@
-SNAPCLIENT_OPTS="-s plugequal"
+SNAPCLIENT_OPTS="-s plugequal --logfilter notice"
+START_SNAPCLIENT="true"
 
 # Allowed options:
 #   --help                          produce help message
