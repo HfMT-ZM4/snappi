@@ -4,9 +4,9 @@
 #
 ################################################################################
 
-ALSAEQUAL_VERSION = 0.6
-ALSAEQUAL_SOURCE = alsaequal-$(ALSAEQUAL_VERSION).tar.bz2
-ALSAEQUAL_SITE = http://www.thedigitalmachine.net/tools
+ALSAEQUAL_VERSION = 0.6-8
+ALSAEQUAL_SOURCE = alsaequal-debian-$(ALSAEQUAL_VERSION).tar.bz2
+ALSAEQUAL_SITE = https://salsa.debian.org/multimedia-team/alsaequal/-/archive/debian/$(ALSAEQUAL_VERSION)
 ALSAEQUAL_LICENSE = LGPLv2.1
 ALSAEQUAL_LICENSE_FILES = COPYING
 ALSAEQUAL_DEPENDENCIES = alsa-lib
