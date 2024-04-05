@@ -1,4 +1,5 @@
 config BR2_PACKAGE_LADSPA
 	bool "ladspa"
+	select BR2_PACKAGE_LIBSNDFILE
 	help
       Provides LADSPA support
