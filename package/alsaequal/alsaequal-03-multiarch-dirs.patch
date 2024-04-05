@@ -1,0 +1,27 @@
+Description: Allow one to override installation dir
+Author: Reinhard Tartler <siretart@tauware.de>
+Debian-Bug: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=635005
+Forwarded: charles@thedigitalmachine.net
+--- a/Makefile
++++ b/Makefile
+@@ -17,6 +17,8 @@ SND_CTL_OBJECTS = ctl_equal.o ladspa_uti
+ SND_CTL_LIBS =
+ SND_CTL_BIN = libasound_module_ctl_equal.so
+ 
++LIBDIR = lib
++
+ .PHONY: all clean dep load_default
+ 
+ all: Makefile $(SND_PCM_BIN) $(SND_CTL_BIN)
+@@ -45,8 +47,9 @@ clean:
+ 
+ install: all
+ 	@echo Installing...
+-	$(Q)install -m 644 $(SND_PCM_BIN) ${DESTDIR}/usr/lib/alsa-lib/
+-	$(Q)install -m 644 $(SND_CTL_BIN) ${DESTDIR}/usr/lib/alsa-lib/
++	$(Q)mkdir -p ${DESTDIR}/usr/$(LIBDIR)/alsa-lib/
++	$(Q)install -m 644 $(SND_PCM_BIN) ${DESTDIR}/usr/$(LIBDIR)/alsa-lib/
++	$(Q)install -m 644 $(SND_CTL_BIN) ${DESTDIR}/usr/$(LIBDIR)/alsa-lib/
+ 
+ uninstall:
+ 	@echo Un-installing...
