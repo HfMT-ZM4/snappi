@@ -2,13 +2,18 @@ start_file=start4.elf
 fixup_file=fixup4.dat
 kernel=zImage
 
+# 16 MB is minumum
 gpu_mem=16
 
+# Disable some HDMI stuff
 display_auto_detect=0
 hdmi_ignore_hotplug=1
 
 # Disable Bluetooth
 dtoverlay=disable-bt
+
+# Disable UART
+enable_uart=0
 
 # Enable audio (loads snd_bcm2835)
 dtparam=audio=on
