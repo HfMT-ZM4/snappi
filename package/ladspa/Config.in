@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LADSPA
+	bool "ladspa"
+	help
+      Provides LADSPA support
