@@ -47,7 +47,8 @@ __EOF__
                 psk="$2"
                 fname="${TARGET_DIR}/var/lib/iwd/${ssid}.psk"
                 echo "Writing passphrase for SSID '${ssid}' to ${fname}"
-                echo "[Security]\nPassphrase=${psk}" > ${fname}
+                echo "[Security]" > ${fname}
+                echo "Passphrase=${psk}" >> ${fname}
                 IFS=" "
             done
             IFS="$OIFS"
