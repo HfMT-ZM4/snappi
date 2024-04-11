@@ -47,3 +47,16 @@ make
 ```
 
 After the successful build, the resulting sd-card image (`sdcard.img`) can be found in `~/snappi/build-rpi0w/images`.
+
+The default build sets the hostname of the client to "snappi-client" and
+attempts to connect to the Wifi with SSID "Snappi" using passphrase "1234578".
+To set a different hostname or configure different Wifi networks, you can run
+`make` again with the following environment variables set:
+
+- SNAPPICLIENT_HOSTNAME (sets the hostname in the generated image)
+- SNAPPICLIENT_WIFI (space separated pairs of Wifi "<SSID>=<PASSPHRASE>")
+
+Example, to configure the hostname to "snappi1" and make two Wifi networks (MyWifi1, MyWifi2 with passphrases "secure1" and "secure2"):
+```
+SNAPPICLIENT_HOSTNAME=snappi1 SNAPPICLIENT_WIFI="MyWifi1=secure1 MyWifi2=secure2" make
+`````
