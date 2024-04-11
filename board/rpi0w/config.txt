@@ -1,0 +1,37 @@
+start_file=start.elf
+fixup_file=fixup.dat
+kernel=zImage
+
+# 16 MB is minumum
+gpu_mem=16
+
+# Disable some HDMI stuff
+display_auto_detect=0
+hdmi_ignore_hotplug=1
+
+# Disable Bluetooth
+dtoverlay=disable-bt
+
+# Enable UART for debugging
+enable_uart=1
+
+# Enable audio (loads snd_bcm2835)
+dtparam=audio=on
+
+# Speed up boot
+bootcode_delay=0
+boot_delay=0
+boot_delay_ms=0
+disable_splash=1
+
+# Speed up boot even more, but with side-effects
+
+# Use smaller firmare
+start_cd=1
+
+# Remove if a HAT needs eeprom reads
+force_eeprom_read=0
+
+# Turbo mode during boot
+initial_turbo=10
+
