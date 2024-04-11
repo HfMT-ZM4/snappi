@@ -54,9 +54,11 @@ To set a different hostname or configure different Wifi networks, you can run
 `make` again with the following environment variables set:
 
 - SNAPPICLIENT_HOSTNAME (sets the hostname in the generated image)
-- SNAPPICLIENT_WIFI (space separated pairs of Wifi "<SSID>=<PASSPHRASE>")
+- SNAPPICLIENT_WIFI (space separated pairs of "SSID=PASSPHRASE")
 
-Example, to configure the hostname to "snappi1" and make two Wifi networks (MyWifi1, MyWifi2 with passphrases "secure1" and "secure2"):
+Example, to configure the hostname to "snappi1" and make two Wifi networks
+("MyWifi1" with passphrase "secure1", "MyWifi2" with passphrase "secure2"):
+
 ```
 SNAPPICLIENT_HOSTNAME=snappi1 SNAPPICLIENT_WIFI="MyWifi1=secure1 MyWifi2=secure2" make
 `````
