@@ -364,7 +364,7 @@ https://www.stefanocottafavi.com/buildroot_rpi_wifi/
 
 # Power Consumption
 
-## Snappi Client 
+## Snappi Client RPi 4B
 Governor: powersave, 600MHz
 
 ### Without HifiBerry MiniAMP
@@ -387,3 +387,26 @@ Target: 10 hours runtime
 Energy: 26.4Wh
 5300mAh @ 5V
 7135mAh @ 3.7V
+
+## Snappi Client Zero W
+
+### Bare (Without HifiBerry MiniAMP)
+Idle: 100mA @ 5V / 0.5W
+Playing: 110mA @ 5V / 0.55W
+Max per hour: 0.11Ah @ 5V / 0.55Wh
+Add 10% safety margin: 0.12Ah @ 5V / 0.6Wh
+
+Target: 5 hours runtime
+Energy: 3Wh
+600mAh @ 5V
+810mAh @ 3.7V
+
+Target: 8 hours runtime
+Energy: 4.8Wh
+960mAh @ 5V
+1300mAh @ 3.7V
+
+Target: 10 hours runtime
+Energy: 6Wh
+1200mAh @ 5V
+4324mAh @ 3.7V
