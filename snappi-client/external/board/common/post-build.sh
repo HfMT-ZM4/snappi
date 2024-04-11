@@ -26,14 +26,14 @@ __EOF__
 		;;
 
         --hostname-from-env)
-        if [ -n "${SNAPPICLIENT_HOSTNAME}" ]; then
+        if [ -n "${SNAPPICLIENT_HOSTNAME:-}" ]; then
             echo "Setting hostname to ${SNAPPICLIENT_HOSTNAME}"
             echo "${SNAPPICLIENT_HOSTNAME}" > ${TARGET_DIR}/etc/hostname
         fi
         ;;
 
         --wifi-from-env)
-        if [ -n "${SNAPPICLIENT_WIFI}" ]; then
+        if [ -n "${SNAPPICLIENT_WIFI:-}" ]; then
             # Remove wifi config from rootfs overlay
             rm ${TARGET_DIR}/var/lib/iwd/*.psk
 
