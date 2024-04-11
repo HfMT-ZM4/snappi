@@ -3,6 +3,7 @@
 - Test power consumption with RPi 0W
 - Add buildroot for snappi-server
 - Test power consumption of server on RPi 4B
+- Make number and setup of channels configurable during build
 
 # Client Setup with stock RPiOS
 ```
