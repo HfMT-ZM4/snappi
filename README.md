@@ -1,6 +1,6 @@
 # Snappi - Multichannel Audio via Wifi
 
-## Build Snappi Client Image using buildroot
+## Build Snappi client image using buildroot
 
 The following assumes you are on a Linux machine.
 
@@ -18,7 +18,9 @@ git submodule init
 git submodule update
 ```
 
-Create a build directory for your desired platform. (we use rpi0w (Raspberry Zero W in this example):
+Create a build directory for your desired platform. We use the "rpi0w" variant
+(Raspberry Zero W) in this example. Replace all "rpi0w" occurences below with "rpi4" to build
+for Raspberry Pi 4B.
 ```
 mkdir ~/snappi/build-rpi0w
 ```

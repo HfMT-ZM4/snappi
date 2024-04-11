@@ -1,5 +1,4 @@
 # TODO
-- Add documentation on how to build client with buildroot
 - Test client on RPi 0W
 - Test power consumption with RPi 0W
 - Add buildroot for snappi-server
