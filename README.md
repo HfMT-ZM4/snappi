@@ -1,5 +1,14 @@
 # Snappi - Multichannel Audio via Wifi
 
+Snappi is a project that uses RaspberryPis and open-source software to
+implement a multichannel audio distribution setup via Wifi.
+
+One RPi acts as the server that accepts multichannel audio from Windows, Mac or
+Linux computers via [JackTrip](https://github.com/jacktrip/jacktrip). The audio
+is then distributed as separate channels via
+[SnapCast](https://github.com/badaix/snapcast) to an arbitrary number of snappi
+clients.
+
 ## Build Snappi client image using buildroot
 
 The following assumes you are on a Linux machine.
