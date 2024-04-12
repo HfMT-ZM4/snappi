@@ -1,5 +1,4 @@
 # TODO
-- Test client on RPi 0W
 - Test power consumption with RPi 0W
 - Add buildroot for snappi-server
 - Test power consumption of server on RPi 4B
