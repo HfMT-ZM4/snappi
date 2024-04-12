@@ -265,7 +265,7 @@ useradd -M -r audio -G audio
 /etc/audio.env
 ```
 JACK_NO_AUDIO_RESERVATION=1
-JACK_OPTS=-P75 -R -dalsa -dhw:0,0 -r48000 -p512 -n3
+JACK_OPTS=-P75 -R -dalsa -dhw:0,0 -r48000 -p1024 -n3
 JACKTRIP_OPTS=-s --receivechannels 8 --sendchannels 1 --udprt
 SNAPSERVER_OPTS=-c /etc/snapserver.conf --server.datadir=/var/lib/snapserver
 ```
