@@ -1,0 +1,2 @@
+SNAPSERVER_OPTS=-c /etc/snapserver.conf --server.datadir=/var/lib/snapserver
+START_SNAPSERVER="true"
