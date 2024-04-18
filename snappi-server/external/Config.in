@@ -1,1 +1,2 @@
+source "$BR2_EXTERNAL_SNAPPISERVER_PATH/../../package/snapcast/Config.in"
 
