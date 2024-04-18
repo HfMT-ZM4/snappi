@@ -1,0 +1,11 @@
+--- a/meson.build
++++ b/meson.build
+@@ -102,7 +102,6 @@ deps = [dependency('threads')]
+ link_args = []
+ 
+ subdir('win')
+-subdir('linux')
+ 
+ jack_dep = dependency('jack', required: get_option('jack'))
+ if not jack_dep.found()
+
