@@ -10,7 +10,7 @@ case "$1" in
 	start)
 		printf "Starting $DAEMON: "
         start-stop-daemon -b -S -m -p "$PIDFILE" --exec /usr/bin/$DAEMON -- \
-            -P75 -R -dalsa -dhw:0,0 -r48000 -p1024 -n3
+            -P75 -R -dalsa -dhw:0,1 -r48000 -p1024 -n3
 		[ $? = 0 ] && echo "OK" || echo "FAIL"
 		;;
 	stop)
