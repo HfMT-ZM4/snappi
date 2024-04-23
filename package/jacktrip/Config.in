@@ -2,6 +2,7 @@ config BR2_PACKAGE_JACKTRIP
 	bool "jacktrip"
     select BR2_PACKAGE_QT6
     select BR2_PACKAGE_QT6BASE
+    select BR2_PACKAGE_QT6BASE_NETWORK
 	help
       Provides JackTrip
 
