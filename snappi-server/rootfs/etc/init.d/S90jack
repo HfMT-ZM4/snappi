@@ -9,6 +9,7 @@ PIDFILE="/var/run/$DAEMON.pid"
 case "$1" in
     start)
         printf "Starting $DAEMON: "
+        ulimit -r unlimited -l unlimited
         start-stop-daemon -b -S -m -O /var/log/$DAEMON.log -c snappi:audio -p "$PIDFILE" --exec /usr/bin/$DAEMON -- \
             -P75 -R -dalsa -dhw:0,1 -r48000 -p1024 -n3
         [ $? = 0 ] && echo "OK" || echo "FAIL"
