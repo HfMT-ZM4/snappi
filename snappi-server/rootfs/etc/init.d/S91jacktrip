@@ -7,24 +7,24 @@ DAEMON="jacktrip"
 PIDFILE="/var/run/$DAEMON.pid"
 
 case "$1" in
-	start)
-		printf "Starting $DAEMON: "
+    start)
+        printf "Starting $DAEMON: "
         start-stop-daemon -b -S -m -O /var/log/$DAEMON.log -c snappi:audio -p "$PIDFILE" --exec /usr/bin/$DAEMON -- \
             -s --receivechannels 8 --sendchannels 1 --udprt
-		[ $? = 0 ] && echo "OK" || echo "FAIL"
-		;;
-	stop)
-		printf "Stopping $DAEMON: "
-		start-stop-daemon -K -q -p "$PIDFILE" -x "/usr/bin/$DAEMON"
-		[ $? = 0 ] && echo "OK" || echo "FAIL"
-		;;
-	restart|reload)
-		$0 stop
-		$0 start
-		;;
-	*)
-		echo "Usage: $0 {start|stop|restart}"
-		exit 1
+        [ $? = 0 ] && echo "OK" || echo "FAIL"
+        ;;
+    stop)
+        printf "Stopping $DAEMON: "
+        start-stop-daemon -K -q -p "$PIDFILE" -x "/usr/bin/$DAEMON"
+        [ $? = 0 ] && echo "OK" || echo "FAIL"
+        ;;
+    restart|reload)
+        $0 stop
+        $0 start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
 esac
 
 exit 0
