@@ -37,7 +37,7 @@ mkdir ~/snappi/build-rpi0w
 Initialize build for rpi0w variant:
 ```
 cd ~/snappi/snappi/buildroot
-make BR2_EXTERNAL=$HOME/snappi/snappi/snappi-client/external O=$HOME/snappi/build-rpi0w snappi_client_rpi0w_defconfig
+make BR2_EXTERNAL=$HOME/snappi/snappi/snappi-client O=$HOME/snappi/build-rpi0w snappi_client_rpi0w_defconfig
 ```
 
 Start the build (this will take very long, depending on your machine and internet connection, possibly 15 - 30 minutes):
