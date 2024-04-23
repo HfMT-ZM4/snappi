@@ -1,4 +1,4 @@
-SNAPCLIENT_OPTS="-s plugequal --logfilter notice"
+SNAPCLIENT_OPTS="-s plugequal --logfilter notice --user snappi:audio"
 START_SNAPCLIENT="true"
 
 # Allowed options:
