@@ -1,4 +1,5 @@
 source "$BR2_EXTERNAL_SNAPPISERVER_PATH/../package/snapcast/Config.in"
 source "$BR2_EXTERNAL_SNAPPISERVER_PATH/../package/jacktrip/Config.in"
 source "$BR2_EXTERNAL_SNAPPISERVER_PATH/../package/rtaudio/Config.in"
+source "$BR2_EXTERNAL_SNAPPISERVER_PATH/../package/snappi-users/Config.in"
 

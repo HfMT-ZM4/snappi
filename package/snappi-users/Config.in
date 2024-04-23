@@ -1,0 +1,4 @@
+config BR2_PACKAGE_SNAPPI_USERS
+	bool "snappi-users"
+        help
+	  Creates the user that all snappi software runs under
