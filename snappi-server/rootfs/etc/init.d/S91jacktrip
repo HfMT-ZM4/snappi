@@ -9,7 +9,7 @@ PIDFILE="/var/run/$DAEMON.pid"
 case "$1" in
 	start)
 		printf "Starting $DAEMON: "
-        start-stop-daemon -b -S -m -c snappi:audio -p "$PIDFILE" --exec /usr/bin/$DAEMON -- \
+        start-stop-daemon -b -S -m -O /var/log/$DAEMON.log -c snappi:audio -p "$PIDFILE" --exec /usr/bin/$DAEMON -- \
             -s --receivechannels 8 --sendchannels 1 --udprt
 		[ $? = 0 ] && echo "OK" || echo "FAIL"
 		;;
