@@ -16,7 +16,9 @@ dtoverlay=disable-bt
 enable_uart=1
 
 # Enable audio (loads snd_bcm2835)
-dtparam=audio=on
+# dtparam=audio=on
+
+dtoverlay=hifiberry-dac
 
 # Speed up boot
 bootcode_delay=0
