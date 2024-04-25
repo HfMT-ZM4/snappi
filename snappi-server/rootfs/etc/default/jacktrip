@@ -1,0 +1,1 @@
+JACKTRIP_OPTS="--receivechannels 8 --sendchannels 1 --udprt"

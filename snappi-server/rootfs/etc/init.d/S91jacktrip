@@ -3,20 +3,26 @@
 # Start jacktrip
 #
 
-DAEMON="jacktrip"
-PIDFILE="/var/run/$DAEMON.pid"
+NAME="jacktrip"
+DAEMON="/usr/bin/$NAME"
+PIDFILE="/var/run/$NAME.pid"
+LOGFILE="/var/log/$NAME.log"
+USER=snappi:audio
+
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+JACKTRIP_OPTS="-s $JACKTRIP_OPTS"
 
 case "$1" in
     start)
-        printf "Starting $DAEMON: "
+        printf "Starting $NAME: "
         ulimit -r unlimited -l unlimited
-        start-stop-daemon -b -S -m -O /var/log/$DAEMON.log -c snappi:audio -p "$PIDFILE" --exec /usr/bin/$DAEMON -- \
-            -s --receivechannels 8 --sendchannels 1 --udprt
+        start-stop-daemon -b -S -m -O "$LOGFILE" -c "$USER" -p "$PIDFILE" --exec "DAEMON" \
+            -- $JACKTRIP_OPTS
         [ $? = 0 ] && echo "OK" || echo "FAIL"
         ;;
     stop)
-        printf "Stopping $DAEMON: "
-        start-stop-daemon -K -q -p "$PIDFILE" -x "/usr/bin/$DAEMON"
+        printf "Stopping $NAME: "
+        start-stop-daemon -K -q -p "$PIDFILE" -x "$DAEMON"
         [ $? = 0 ] && echo "OK" || echo "FAIL"
         ;;
     restart|reload)
