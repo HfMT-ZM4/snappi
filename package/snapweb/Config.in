@@ -1,0 +1,5 @@
+config BR2_PACKAGE_SNAPWEB
+	bool "snapweb"
+        help
+	  Install snapweb for snapserver
+
