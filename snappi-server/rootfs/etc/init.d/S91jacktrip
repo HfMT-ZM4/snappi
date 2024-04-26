@@ -12,6 +12,9 @@ USER=snappi:audio
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
 JACKTRIP_OPTS="-s $JACKTRIP_OPTS"
 
+[ -r /etc/snappi.conf ] && . /etc/snappi.conf
+JACKTRIP_OPTS="$JACKTRIP_OPTS --receivechannels $SNAPPI_CHANNELS"
+
 case "$1" in
     start)
         printf "Starting $NAME: "

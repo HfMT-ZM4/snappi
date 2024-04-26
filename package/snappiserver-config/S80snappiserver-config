@@ -1,0 +1,53 @@
+#! /bin/sh
+
+[ -r /etc/snappi.conf ] && . /etc/snappi.conf
+
+start() {
+	echo "Configuring ALSA"
+
+    /usr/bin/snappiserver-config.py \
+        --channels $SNAPPI_CHANNELS \
+        --samplerate $SNAPPI_SAMPLERATE \
+        --bits $SNAPPI_BITS \
+        --stereo-pairs $SNAPPI_STEREO_PAIRS \
+        --filename /etc/alsa/conf.d/loop.conf \
+        alsa
+
+	echo "Configuring SnapServer"
+
+    /usr/bin/snappiserver-config.py \
+        --channels $SNAPPI_CHANNELS \
+        --samplerate $SNAPPI_SAMPLERATE \
+        --bits $SNAPPI_BITS \
+        --latency $SNAPPI_LATENCY_MS \
+        --stereo-pairs $SNAPPI_STEREO_PAIRS \
+        --idle-threshold $SNAPPI_IDLE_THRESHOLD \
+        --filename /etc/snapserver.conf \
+        snapserver
+}
+
+stop() {
+}
+
+restart() {
+	stop
+	start
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart|reload)
+	restart
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+

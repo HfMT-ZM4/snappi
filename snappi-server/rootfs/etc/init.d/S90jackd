@@ -11,6 +11,9 @@ USER=snappi:audio
 
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
 
+[ -r /etc/snappi.conf ] && . /etc/snappi.conf
+JACKD_OPTS="$JACKD_OPTS -r$SNAPPI_SAMPLERATE"
+
 case "$1" in
     start)
         printf "Starting $DAEMON: "
