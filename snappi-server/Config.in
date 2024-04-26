@@ -3,4 +3,5 @@ source "$BR2_EXTERNAL_SNAPPISERVER_PATH/../package/snapweb/Config.in"
 source "$BR2_EXTERNAL_SNAPPISERVER_PATH/../package/jacktrip/Config.in"
 source "$BR2_EXTERNAL_SNAPPISERVER_PATH/../package/rtaudio/Config.in"
 source "$BR2_EXTERNAL_SNAPPISERVER_PATH/../package/snappi-users/Config.in"
+source "$BR2_EXTERNAL_SNAPPISERVER_PATH/../package/snappiserver-config/Config.in"
 
