@@ -1,0 +1,19 @@
+diff --git a/src/JackTrip.cpp b/src/JackTrip.cpp
+index 2e8b2b7c..5a1070b1 100644
+--- a/src/JackTrip.cpp
++++ b/src/JackTrip.cpp
+@@ -1582,11 +1582,11 @@ bool JackTrip::checkIfPortIsBinded(int port)
+     std::map<std::string, QHostAddress::SpecialAddress>::iterator it;
+     for (it = interfaces.begin(); it != interfaces.end(); it++) {
+         bool binded = UdpSockTemp.bind(it->second, port, QUdpSocket::DontShareAddress);
+-        if (!binded) {
+-            UdpSockTemp.close();  // close the socket
++        QUdpSocket::SocketError err = UdpSockTemp.error();
++        UdpSockTemp.close();
++        if (!binded && err != QUdpSocket::UnsupportedSocketOperationError) {
+             return true;
+         }
+-        UdpSockTemp.close();
+     }
+     return false;
+ }
