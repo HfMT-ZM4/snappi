@@ -19,7 +19,7 @@ case "$1" in
     start)
         printf "Starting $NAME: "
         ulimit -r unlimited -l unlimited
-        start-stop-daemon -b -S -m -O "$LOGFILE" -c "$USER" -p "$PIDFILE" --exec "DAEMON" \
+        start-stop-daemon -b -S -m -O "$LOGFILE" -c "$USER" -p "$PIDFILE" --exec "$DAEMON" \
             -- $JACKTRIP_OPTS
         [ $? = 0 ] && echo "OK" || echo "FAIL"
         ;;
