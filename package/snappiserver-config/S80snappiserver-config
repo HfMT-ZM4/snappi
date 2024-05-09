@@ -27,6 +27,7 @@ start() {
 }
 
 stop() {
+    :
 }
 
 restart() {
