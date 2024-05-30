@@ -4,8 +4,10 @@
 #
 ################################################################################
 
-SNAPCAST_VERSION = v0.28.0
-SNAPCAST_SITE = $(call github,badaix,snapcast,$(SNAPCAST_VERSION))
+#SNAPCAST_VERSION = v0.28.0
+#SNAPCAST_SITE = $(call github,badaix,snapcast,$(SNAPCAST_VERSION))
+SNAPCAST_VERSION = jack-streamreader
+SNAPCAST_SITE = $(call github,mawe42,snapcast,$(SNAPCAST_VERSION))
 SNAPCAST_DEPENDENCIES = libogg alsa-lib avahi # libstdcpp libatomic libflac libvorbisidec
 SNAPCAST_LICENSE = GPL-3.0+
 SNAPCAST_LICENSE_FILES = LICENSE
