@@ -22,7 +22,7 @@ start() {
         --latency $SNAPPI_LATENCY_MS \
         --stereo-pairs $SNAPPI_STEREO_PAIRS \
         --idle-threshold $SNAPPI_IDLE_THRESHOLD \
-        --filename /etc/snapserver.conf \
+        --filename /etc/snapserver.alsa.conf \
         snapserver
 }
 
