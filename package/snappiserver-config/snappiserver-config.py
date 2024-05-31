@@ -27,18 +27,11 @@ def main():
     parser.add_argument('-o', '--filename',
                         help='Filename of output file')
 
-    parser.add_argument('output', choices=('alsa', 'snapserver'))
+    parser.add_argument('output', choices=('snapserver',))
 
     args = parser.parse_args()
 
-    if args.output == 'alsa':
-        conf = generate_alsa_config(
-            channels=args.channels,
-            samplerate=args.samplerate,
-            stereo_pairs=args.stereo_pairs,
-        )
-
-    elif args.output == 'snapserver':
+    if args.output == 'snapserver':
         conf = generate_snapserver_config(
             channels=args.channels,
             samplerate=args.samplerate,
@@ -55,31 +48,6 @@ def main():
             f.write(conf)
     else:
         print(conf)
-
-
-def generate_alsa_config(channels, samplerate, stereo_pairs=False):
-    conf = TMPL_ALSA_PCM_LOOP % {
-        'channels': channels,
-        'samplerate': samplerate,
-    }
-
-    for i in range(channels):
-        conf += '\n'
-        conf += TMPL_ALSA_PCM_MONO % {
-            'name': f'mono{i + 1}',
-            'channel': i,
-        }
-
-    if stereo_pairs:
-        for i in range(channels // 2):
-            conf += '\n'
-            conf += TMPL_ALSA_PCM_STEREO % {
-                'name': f'stereo{i + 1}',
-                'left_channel': i * 2,
-                'right_channel': i * 2 + 1,
-            }
-
-    return conf
 
 
 def _snapserver_source_url(**kwargs):
@@ -121,39 +89,6 @@ def generate_snapserver_config(channels, samplerate, bits, stereo_pairs, idle_th
         'sources': sources,
     }
 
-
-TMPL_ALSA_PCM_LOOP = '''
-pcm_slave.loop {
-    pcm "hw:0,0,0"
-    channels %(channels)d
-    rate %(samplerate)d
-}
-'''
-
-TMPL_ALSA_PCM_MONO = '''
-pcm.%(name)s {
-    type plug
-    slave.pcm {
-        type dsnoop
-        ipc_key 4242
-        slave loop
-        bindings.0 %(channel)d
-    }
-}
-'''
-
-TMPL_ALSA_PCM_STEREO = '''
-pcm.%(name)s {
-    type plug
-    slave.pcm {
-        type dsnoop
-        ipc_key 4242
-        slave loop
-        bindings.0 %(left_channel)d
-        bindings.1 %(right_channel)d
-    }
-}
-'''
 
 TMPL_SNAPSERVER_CONFIG = '''
 [server]
