@@ -84,7 +84,7 @@ def generate_alsa_config(channels, samplerate, stereo_pairs=False):
 
 def _snapserver_source_url(**kwargs):
     params = '&'.join(f'{key}={val}' for key, val in kwargs.items())
-    return f'alsa:///?{params}'
+    return f'jack:///?{params}'
 
 
 def generate_snapserver_sources(channels, samplerate, bits, stereo_pairs, idle_threshold):
@@ -92,9 +92,10 @@ def generate_snapserver_sources(channels, samplerate, bits, stereo_pairs, idle_t
     for i in range(channels):
         source_url = _snapserver_source_url(
             name=f'Mono-{i + 1}',
-            device=f'mono{i + 1}',
             sampleformat=f'{samplerate}:{bits}:1',
             idle_threshold=idle_threshold,
+            autoconnect='JackTrip:receive_',
+            autoconnect_skip=i,
         )
         source_lines.append(f'source = {source_url}')
 
@@ -102,9 +103,10 @@ def generate_snapserver_sources(channels, samplerate, bits, stereo_pairs, idle_t
         for i in range(channels // 2):
             source_url = _snapserver_source_url(
                 name=f'Stereo-{i + 1}',
-                device=f'stereo{i + 1}',
                 sampleformat=f'{samplerate}:{bits}:2',
                 idle_threshold=idle_threshold,
+                autoconnect='JackTrip:receive_',
+                autoconnect_skip=i * 2,
             )
             source_lines.append(f'source = {source_url}')
 
