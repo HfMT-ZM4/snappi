@@ -1,0 +1,40 @@
+diff --git a/arch/arm/boot/dts/overlays/Makefile b/arch/arm/boot/dts/overlays/Makefile
+index 5b1380b..b10193a 100644
+--- a/arch/arm/boot/dts/overlays/Makefile
++++ b/arch/arm/boot/dts/overlays/Makefile
+@@ -283,6 +283,7 @@ dtbo-$(CONFIG_ARCH_BCM2835) += \
+ 	uart5.dtbo \
+ 	udrc.dtbo \
+ 	ugreen-dabboard.dtbo \
++	ups-hat-ina219.dtbo \
+ 	upstream.dtbo \
+ 	upstream-pi4.dtbo \
+ 	vc4-fkms-v3d.dtbo \
+diff --git a/arch/arm/boot/dts/overlays/ups-hat-ina219-overlay.dts b/arch/arm/boot/dts/overlays/ups-hat-ina219-overlay.dts
+new file mode 100644
+index 0000000..c06d078
+--- /dev/null
++++ b/arch/arm/boot/dts/overlays/ups-hat-ina219-overlay.dts
+@@ -0,0 +1,22 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++        compatible = "brcm,bcm2835";
++
++        fragment@0 {
++                target = <&i2c_arm>;
++                __overlay__ {
++                        #address-cells = <1>;
++                        #size-cells = <0>;
++
++                        ina219@40 {
++                                status = "okay";
++                                compatible = "ti,ina219";
++                                reg = <0x43>;
++                                shunt-resistor = <10000>;  // R010
++                        };
++                };
++        };
++};
++
