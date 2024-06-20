@@ -64,6 +64,7 @@ def generate_snapserver_sources(channels, samplerate, bits, stereo_pairs, idle_t
             idle_threshold=idle_threshold,
             autoconnect='JackTrip:receive_',
             autoconnect_skip=i,
+            jack_time='true',
         )
         source_lines.append(f'source = {source_url}')
 
@@ -75,9 +76,9 @@ def generate_snapserver_sources(channels, samplerate, bits, stereo_pairs, idle_t
                 idle_threshold=idle_threshold,
                 autoconnect='JackTrip:receive_',
                 autoconnect_skip=i * 2,
+                jack_time='true',
             )
             source_lines.append(f'source = {source_url}')
-
 
     return '\n'.join(source_lines)
 
