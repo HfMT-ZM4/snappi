@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-JACKTRIP_VERSION = 2.2.5
+JACKTRIP_VERSION = 2.3.0
 JACKTRIP_SOURCE = jacktrip-$(JACKTRIP_VERSION).tar.gz
 JACKTRIP_SITE = $(call github,jacktrip,jacktrip,v$(JACKTRIP_VERSION))
 JACKTRIP_LICENSE = GPL-3.0+
