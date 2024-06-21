@@ -11,42 +11,54 @@ clients.
 
 ## Build Snappi client image using buildroot
 
-The following assumes you are on a Linux machine.
+The following assumes you are on a Linux machine and that you have
+podman installed.
 
-Create a base directory for all things "snappi":
+Create a base directory and some supporting directories
+for all things "snappi":
 ```
 mkdir ~/snappi/
 cd ~/snappi/
+mkdir dl
+mkdir build
 ```
 
-Checkout this repository and the buildroot submodule:
+Checkout this repository:
 ```
 git clone git@github.com:HfMT-ZM4/snappi.git
-cd snappi
-git submodule init
-git submodule update
 ```
 
-Create a build directory for your desired platform. We use the "rpi0w" variant
-(Raspberry Zero W) in this example. Replace all "rpi0w" occurences below with "rpi4" to build
-for Raspberry Pi 4B.
+Build the buildroot podman image:
 ```
-mkdir ~/snappi/build-rpi0w
+podman build -f snappi/build/Dockerfile -t buildroot
 ```
 
-Initialize build for rpi0w variant:
+Initialize and run the build for the desired component.
+
+Snappi-Server:
 ```
-cd ~/snappi/snappi/buildroot
-make BR2_EXTERNAL=$HOME/snappi/snappi/snappi-client O=$HOME/snappi/build-rpi0w snappi_client_rpi0w_defconfig
+snappi/build/init.sh snappi-server snappi_server_rpi4_defconfig server
+snappi/build/run.sh server make
 ```
 
-Start the build (this will take very long, depending on your machine and internet connection, possibly 15 - 30 minutes):
+Snappi-Client for RPi4
 ```
-cd ~/snappi/build-rpi0w
-make
+snappi/build/init.sh snappi-client snappi_client_rpi4_defconfig client-rpi4
+snappi/build/run.sh client-rpi4 make
 ```
 
-After the successful build, the resulting sd-card image (`sdcard.img`) can be found in `~/snappi/build-rpi0w/images`.
+Snappi-Client for RPi 0W
+```
+snappi/build/init.sh snappi-client snappi_client_rpi0w_defconfig client-rpi0w
+snappi/build/run.sh client-rpi0w make
+```
+
+The build will take quite some time, depending on your machine and internet
+connection 15 - 30 minutes, maybe more.
+
+After the successful build, the resulting sd-card image (`sdcard.img`) can be found in `~/snappi/build/$NAME/images`.
+
+
 
 The default build sets the hostname of the client to "snappi-client" and
 attempts to connect to the Wifi with SSID "Snappi" using passphrase "1234578".
