@@ -1,0 +1,18 @@
+[Unit]
+Description=Jack audio server 
+After=sound.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+User=snappi
+Type=simple
+LimitRTPRIO=infinity
+LimitMEMLOCK=infinity
+LimitRTTIME=infinity
+EnvironmentFile=-/etc/default/jackd
+ExecStart=/usr/bin/jackd $JACKD_OPTS
+Restart=always
+RestartSec=2s
+

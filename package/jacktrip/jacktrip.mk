@@ -14,4 +14,9 @@ JACKTRIP_INSTALL_STAGING = NO
 JACKTRIP_MESON_EXTRA_BINARIES += moc='$(HOST_DIR)/libexec/moc'
 JACKTRIP_CONF_OPTS += -Dnogui=true -Djack=enabled -Drtaudio=disabled
 
+define JACKTRIP_INSTALL_INIT_SYSTEMD
+	$(INSTALL) -D -m 0644 $(JACKTRIP_PKGDIR)/jacktrip.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/jacktrip.service
+endef
+
 $(eval $(meson-package))

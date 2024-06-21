@@ -1,14 +1,2 @@
 auto lo
 iface lo inet loopback
-
-auto eth0
-iface eth0 inet dhcp
-    wait-delay 5
-    udhcpc_opts -t2 -T1 -A1
-    hostname $(hostname)
-
-auto wlan0
-iface wlan0 inet static
-    address 10.10.10.1
-    netmask 255.255.255.0
-    hostname $(hostname)
