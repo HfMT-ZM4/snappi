@@ -9,6 +9,9 @@ ExecStart=/usr/bin/snapclient --logging.sink=system $SNAPCLIENT_OPTS
 User=snappi
 Group=audio
 Restart=always
+LimitRTPRIO=infinity
+LimitMEMLOCK=infinity
+LimitRTTIME=infinity
 
 [Install]
 WantedBy=multi-user.target
