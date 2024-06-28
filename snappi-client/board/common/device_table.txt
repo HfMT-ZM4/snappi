@@ -1,2 +1,1 @@
 /var/lib/alsa/equal.bin f 775 snappi audio - - - - -
-/etc/NetworkManager/system-connections/Snappi.nmconnection f 600 root root - - - - -
