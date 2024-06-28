@@ -6,6 +6,8 @@ autoconnect=true
 interface-name=wlan0
 
 [wifi]
+band=bg
+hidden=false
 mode=ap
 ssid=Snappi
 
@@ -13,7 +15,7 @@ ssid=Snappi
 group=ccmp;
 key-mgmt=wpa-psk
 pairwise=ccmp;
-proto=rsn;
+proto=wpa;rsn;
 psk=12345678
 
 [ipv4]
