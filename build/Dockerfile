@@ -36,7 +36,9 @@ RUN apt-get update && \
     flex \
     cmake \
     libssl-dev \
-    libfdt-dev
+    libfdt-dev \
+    ts-node \
+    npm
 
 RUN locale-gen en_US.utf8
 
