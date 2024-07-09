@@ -37,3 +37,4 @@ force_eeprom_read=0
 # Turbo mode during boot
 initial_turbo=10
 
+dtparam=i2c_arm=on

@@ -1,4 +1,4 @@
-SNAPCLIENT_OPTS="-s plugequal --logfilter notice --user snappi:audio"
+SNAPCLIENT_OPTS="-s plugequal --logfilter notice --user snappi:audio --sysinfo file:/tmp/sysinfo.json --sysinfo-interval 30"
 START_SNAPCLIENT="true"
 
 # Allowed options:
