@@ -15,8 +15,9 @@ dtoverlay=disable-bt
 # Enable UART for debugging
 enable_uart=1
 
-# Enable audio (loads snd_bcm2835)
+# audio
 dtparam=audio=on
+# dtoverlay=hifiberry-dac
 
 # Speed up boot
 bootcode_delay=0
@@ -34,3 +35,5 @@ force_eeprom_read=0
 
 # Turbo mode during boot
 initial_turbo=10
+
+dtparam=i2c_arm=on
