@@ -7,6 +7,7 @@ fi
 start() {
 	echo -n "Doing Snappi Cloud-Init"
     /usr/bin/snappi-cloud-init
+    hostname -F /etc/hostname
 	[ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 
