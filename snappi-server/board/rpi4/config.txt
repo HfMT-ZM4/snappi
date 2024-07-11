@@ -10,7 +10,7 @@ display_auto_detect=0
 hdmi_ignore_hotplug=1
 
 # Disable Bluetooth
-# dtoverlay=disable-bt
+dtoverlay=disable-bt
 
 # Enable UART for debugging
 enable_uart=1
