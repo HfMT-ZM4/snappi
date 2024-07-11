@@ -1,0 +1,13 @@
+[Unit]
+Description=Snappi Cloud-Init
+Before=network-pre.target
+Wants=network-pre.target
+ConditionPathExists=|/boot/user-data
+ConditionPathExists=|/boot/network-.con
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/snappi-cloud-init
+
+[Install]
+WantedBy=network.target

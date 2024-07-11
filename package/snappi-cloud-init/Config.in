@@ -1,0 +1,8 @@
+config BR2_PACKAGE_SNAPPI_CLOUD_INIT
+	bool "snappi-cloud-init"
+    select BR2_PACKAGE_PYTHON3
+    select BR2_PACKAGE_PYTHON_PYYAML
+        help
+	  Support custom OS settings in the Raspberry Pi Imager
+
+

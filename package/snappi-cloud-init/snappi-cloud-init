@@ -1,0 +1,133 @@
+#!/usr/bin/python
+
+import yaml
+import uuid
+from pathlib import Path
+
+USER_DATA_PATH = '/boot/user-data'
+NETWORK_CONFIG_PATH = '/boot/network-.con'
+NM_CONFIG_DIR = '/etc/NetworkManager/system-connections'
+IWD_CONFIG_DIR = '/var/lib/iwd'
+
+def read_yaml(filename):
+    try:
+        with Path(filename).open() as f:
+            return yaml.safe_load(f)
+    except:
+        return {}
+
+
+def set_hostname(conf):
+    hostname = conf.get('hostname', '')
+    if not hostname:
+        return
+
+    Path('/etc/hostname').write_text(hostname)
+    with Path('/etc/hosts').open('a') as f:
+        f.write(f'127.0.0.1 {hostname}\n')
+
+
+def add_ssh_keys(conf):
+    keys = []
+
+    for user in conf.get('users', []):
+        for key in user.get('ssh_authorized_keys', []):
+            keys.append(key)
+
+    if not keys:
+        return
+
+    ssh_dir = Path('/root/.ssh')
+    if not ssh_dir.exists():
+        ssh_dir.mkdir(mode=0o700)
+
+    pubkeys = '\n'.join(keys)
+
+    authfile = ssh_dir / 'authorized_keys'
+    authfile.write_text(pubkeys)
+    authfile.chmod(0o600)
+
+
+def configure_wifi(conf):
+    ap_conf = conf.get('wifis', {}).get('wlan0', {}).get('access-points', {})
+    if not ap_conf:
+        return
+
+    ssid, args = list(ap_conf.items())[0]
+    psk = args.get('password')
+    if not ssid or not psk:
+        return
+
+    if Path(NM_CONFIG_DIR).exists():
+        set_wlan_networkmanager(ssid, psk)
+    elif Path(IWD_CONFIG_DIR).exists():
+        set_wlan_iwd(ssid, psk)
+
+def set_wlan_networkmanager(ssid, psk):
+    for conf in Path(NM_CONFIG_DIR).glob('*.nmconnection'):
+        conf.unlink()
+
+    config = '\n'.join([
+        '[connection]',
+        'id=wifi',
+        f'uuid={str(uuid.uuid4())}',
+        'type=wifi',
+        'interface-name=wlan0',
+        'autoconnect=true',
+        '',
+        '[wifi]',
+        'mode=infrastructure',
+        f'ssid={ssid}',
+        '',
+        '[wifi-security]',
+        'auth-alg=open',
+        'key-mgmt=wpa-psk',
+        f'psk={psk}',
+        '',
+        '[ipv4]',
+        'method=auto',
+        '',
+        '[ipv6]',
+        'addr-gen-mode=default',
+        'method=auto',
+    ])
+
+    config_file = Path(NM_CONFIG_DIR) / f'wifi.nmconnection'
+    config_file.write_text(config)
+    config_file.chmod(0o600)
+
+def set_wlan_iwd(ssid, psk):
+    for conf in Path(IWD_CONFIG_DIR).glob('*.psk'):
+        conf.unlink()
+
+    config = '\n'.join([
+        '[Security]',
+        f'Passphrase={psk}',
+    ])
+
+    config_file = Path(IWD_CONFIG_DIR) / f'{ssid}.psk'
+    config_file.write_text(config)
+    config_file.chmod(0o600)
+
+def main():
+    user_data = read_yaml(USER_DATA_PATH)
+    network_config = read_yaml(NETWORK_CONFIG_PATH)
+
+    if not user_data and not network_config:
+        return
+
+    set_hostname(user_data)
+    add_ssh_keys(user_data)
+    configure_wifi(network_config)
+
+    path = Path(USER_DATA_PATH)
+    if path.exists():
+        path.unlink()
+
+    path = Path(NETWORK_CONFIG_PATH)
+    if path.exists():
+        path.unlink()
+
+
+if __name__ == '__main__':
+    main()
