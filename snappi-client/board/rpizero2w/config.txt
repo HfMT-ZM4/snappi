@@ -1,0 +1,45 @@
+start_file=start.elf
+fixup_file=fixup.dat
+kernel=zImage
+
+# 16 MB is minumum
+gpu_mem=16
+
+# Disable some HDMI stuff
+display_auto_detect=0
+hdmi_ignore_hotplug=1
+
+# Enable UART for debugging
+enable_uart=1
+
+# audio
+# dtparam=audio=on
+dtoverlay=hifiberry-dac
+
+# Speed up boot
+bootcode_delay=0
+boot_delay=0
+boot_delay_ms=0
+disable_splash=1
+
+# Speed up boot even more, but with side-effects
+
+# Use smaller firmare
+start_cd=1
+
+# Remove if a HAT needs eeprom reads
+force_eeprom_read=0
+
+# Turbo mode during boot
+initial_turbo=10
+
+dtparam=i2c_arm=on
+
+# fixes rpi (3B, 3B+, 3A+, 4B ,zero W and zero 2) ttyAMA0 serial console
+# dtoverlay=miniuart-bt
+
+# enable autoprobing of Bluetooth driver without need of hciattach/btattach
+# dtparam=krnbt=on
+# Disable Bluetooth
+dtoverlay=disable-bt
+
