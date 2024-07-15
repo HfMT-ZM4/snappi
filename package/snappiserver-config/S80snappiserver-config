@@ -4,16 +4,7 @@
 
 start() {
 	echo "Configuring SnapServer"
-
-    /usr/bin/snappiserver-config.py \
-        --channels $SNAPPI_CHANNELS \
-        --samplerate $SNAPPI_SAMPLERATE \
-        --bits $SNAPPI_BITS \
-        --latency $SNAPPI_LATENCY_MS \
-        --stereo-pairs $SNAPPI_STEREO_PAIRS \
-        --idle-threshold $SNAPPI_IDLE_THRESHOLD \
-        --filename /etc/snapserver.conf \
-        snapserver
+    /usr/bin/snappiserver-config.py
 }
 
 stop() {

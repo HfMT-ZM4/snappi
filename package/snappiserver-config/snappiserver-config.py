@@ -1,53 +1,57 @@
 #!/usr/bin/python3
 
+from os import getenv
+from pathlib import Path
 import argparse
 
 
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-c', '--channels', type=int, default=2,
+    parser.add_argument('-c', '--channels', type=int,
+                        default=int(getenv('SNAPPI_CHANNELS', 2)),
                         help='Number of audio channels')
 
-    parser.add_argument('-r', '--samplerate', type=int, default=44100,
+    parser.add_argument('-r', '--samplerate', type=int,
+                        default=int(getenv('SNAPPI_SAMPLERATE', 44100)),
                         help='Sample rate to use')
 
-    parser.add_argument('-b', '--bits', type=int, default=16,
+    parser.add_argument('-b', '--bits', type=int,
+                        default=int(getenv('SNAPPI_BITS', 16)),
                         help='Bits to use')
 
-    parser.add_argument('-s', '--stereo-pairs', type=int, default=0,
+    parser.add_argument('-s', '--stereo-pairs', type=int,
+                        default=int(getenv('SNAPPI_STEREO_PAIRS', 1)),
                         help='Add stereo pairs for all channels')
 
-    parser.add_argument('-l', '--latency', type=int, default=1000,
+    parser.add_argument('-l', '--latency', type=int,
+                        default=int(getenv('SNAPPI_LATENCY_MS', 1000)),
                         help='End-to-end latency in ms for snapserver')
 
-    parser.add_argument('-i', '--idle-threshold', type=int, default=2000,
+    parser.add_argument('-i', '--idle-threshold', type=int,
+                        default=int(getenv('SNAPPI_IDLE_THRESHOLD', 2000)),
                         help='Idle threshold for snapserver streams')
 
     parser.add_argument('-o', '--filename',
+                        default='/etc/snapserver.conf',
                         help='Filename of output file')
-
-    parser.add_argument('output', choices=('snapserver',))
 
     args = parser.parse_args()
 
-    if args.output == 'snapserver':
-        conf = generate_snapserver_config(
-            channels=args.channels,
-            samplerate=args.samplerate,
-            bits=args.bits,
-            stereo_pairs=args.stereo_pairs,
-            idle_threshold=args.idle_threshold,
-            latency=args.latency,
-        )
-    else:
-        conf = ''
+    conf = generate_snapserver_config(
+        channels=args.channels,
+        samplerate=args.samplerate,
+        bits=args.bits,
+        stereo_pairs=args.stereo_pairs,
+        idle_threshold=args.idle_threshold,
+        latency=args.latency,
+    )
 
-    if args.filename:
+    if args.filename == '-':
+        print(conf)
+    else:
         with open(args.filename, 'w') as f:
             f.write(conf)
-    else:
-        print(conf)
 
 
 def _snapserver_source_url(**kwargs):

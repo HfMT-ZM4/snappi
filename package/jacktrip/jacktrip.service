@@ -14,5 +14,6 @@ LimitRTPRIO=infinity
 LimitMEMLOCK=infinity
 LimitRTTIME=infinity
 EnvironmentFile=-/etc/default/jacktrip
-ExecStart=/usr/bin/jacktrip $JACKTRIP_OPTS
+EnvironmentFile=-/etc/snappi.conf
+ExecStart=/usr/bin/jacktrip $JACKTRIP_OPTS --receivechannels ${SNAPPI_CHANNELS}
 Restart=always

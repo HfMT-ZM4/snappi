@@ -5,9 +5,8 @@ After=network-online.target time-sync.target avahi-daemon.service
 
 [Service]
 PermissionsStartOnly=true
-RuntimeDirectory=snapserver
-RuntimeDirectoryMode=0775
 EnvironmentFile=/etc/default/snapserver
+ExecStartPre=/usr/bin/install -o snappi -g audio -d /var/lib/snapserver
 ExecStart=/usr/bin/snapserver --logging.sink=system $SNAPSERVER_OPTS
 User=snappi
 Group=audio
