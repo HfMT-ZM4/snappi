@@ -1,6 +1,6 @@
 [Unit]
 Description=Snappi Server Config
-Before=network-pre.target
+Before=network-pre.target snapserver.service
 Wants=network-pre.target
 
 [Service]
