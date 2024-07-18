@@ -53,24 +53,22 @@ snappi/build/init.sh snappi-client snappi_client_rpi0w_defconfig client-rpi0w
 snappi/build/run.sh client-rpi0w make
 ```
 
+Snappi-Client for RPi Zero 2W
+```
+snappi/build/init.sh snappi-client snappi_client_rpizero2w_defconfig client-rpizero2w
+snappi/build/run.sh client-rpizero2w make
+```
+
+
 The build will take quite some time, depending on your machine and internet
 connection 15 - 30 minutes, maybe more.
 
 After the successful build, the resulting sd-card image (`sdcard.img`) can be found in `~/snappi/build/$NAME/images`.
 
+## Writing the images to an sd-card
 
+The images have support for the [RaspberryPi Imager](https://www.raspberrypi.com/software/) OS customization. So you can 
+write the images using that tool and also adjust the hostname and WiFi settings.
 
-The default build sets the hostname of the client to "snappi-client" and
-attempts to connect to the Wifi with SSID "Snappi" using passphrase "1234578".
-To set a different hostname or configure different Wifi networks, you can run
-`make` again with the following environment variables set:
-
-- SNAPPICLIENT_HOSTNAME (sets the hostname in the generated image)
-- SNAPPICLIENT_WIFI (space separated pairs of "SSID=PASSPHRASE")
-
-Example, to configure the hostname to "snappi1" and make two Wifi networks
-("MyWifi1" with passphrase "secure1", "MyWifi2" with passphrase "secure2"):
-
-```
-SNAPPICLIENT_HOSTNAME=snappi1 SNAPPICLIENT_WIFI="MyWifi1=secure1 MyWifi2=secure2" make
-`````
+If you don't apply Wifi customizations, then the default build uses a WiFi hotspot with SSID "Snappi"
+and passphrase "12345678" on the server and configures the Wifi accordingly on the clients.
