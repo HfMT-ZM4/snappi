@@ -1,14 +1,14 @@
 <template>
   <div ref="main" class="d-flex flex-column" style="height: 100%; width: 100%">
     <div ref="iframeContainer" class="flex-grow-1">
-      <iframe :class="{'loaded': loaded}" @load="loaded = true" ref="iframe" src="http://192.168.178.149:1780"></iframe>
+      <iframe :class="{'loaded': loaded}" @load="loaded = true" ref="iframe" :src="snapwebURL"></iframe>
     </div>
   </div>
 </template>
 
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
 const iframeContainer = ref()
 const iframe = ref()
@@ -20,6 +20,10 @@ const resizeIframe = () => {
    iframe.value.height = height
    iframe.value.width = width
 }
+
+const snapwebURL = computed(() => {
+  return 'http://' + window.location.hostname + ':1780'
+})
 
 onMounted(() => {
   window.addEventListener('resize', resizeIframe)
