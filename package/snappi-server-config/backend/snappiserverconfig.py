@@ -100,7 +100,7 @@ def _snapserver_source_url(**kwargs):
         else:
             params.append(f'{key}={val}')
     url = '&'.join(params)
-    return f'jack:///?{url}'
+    return f'source = jack:///?{url}'
 
 
 def update_snapserver_config(config: Config):
@@ -114,6 +114,8 @@ def update_snapserver_config(config: Config):
             autoconnect=[f'^JackTrip:receive_{num}$' for num in stream.channels],
         ))
 
+    sources = '\n'.join(sources)
+
     value = striplines(f'''
         [server]
         user = snappi
@@ -126,7 +128,7 @@ def update_snapserver_config(config: Config):
         codec = pcm
         buffer = {config.latency}
 
-        {'\n'.join(sources)}
+        {sources}
     ''')
 
     return write_file_if_changed(SNAPSERVER_CONFIG_FILE, value)
@@ -359,12 +361,12 @@ async def get_status():
     ])
 
 
-@app.get('/logs')
+@app.get('/api/logs')
 async def get_logs(services: Annotated[List[str], Query()] = [], num_lines=1000):
     return get_service_logs(services, num_lines)
 
 
-app.mount('/', StaticFiles(directory='/home/marcus/snappi/snappi/package/snappi-server-config/frontend/dist', html=True), name='static')
+app.mount('/', StaticFiles(directory=FRONTEND_FILES_DIR, html=True), name='static')
 
 
 @app.exception_handler(404)
