@@ -1,0 +1,7 @@
+config BR2_PACKAGE_SNAPPI_SERVER_CONFIG
+	bool "snappi-server-config"
+    select BR2_PACKAGE_PYTHON_UVICORN
+    select BR2_PACKAGE_PYTHON_FASTAPI
+        help
+	  Web-Interface and tools to configure the Snappi Server
+

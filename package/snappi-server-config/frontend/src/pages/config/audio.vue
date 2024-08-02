@@ -16,12 +16,14 @@
           :items="[44100, 48000]"
           suffix="Hz"
           v-model="store.samplerate"
+          hint="The sample rate for JackTrip, Jack and all SnapCast streams"
           ></v-select>
 
         <v-select
           label="Bitrate"
           :items="[16, 24, 32]"
           v-model="store.bits"
+          hint="The bit rate for all SnapCast streams"
           ></v-select>
 
       </v-card-text>
@@ -36,6 +38,7 @@
           required
           suffix="ms"
           v-model="store.latency"
+          hint="The delay in milliseconds until SnapCast clients play out the received audio"
           ></v-text-field>
       </v-card-text>
     </v-card>

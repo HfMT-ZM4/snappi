@@ -1,0 +1,12 @@
+[Unit]
+Description=Snappi Server Config
+Before=network-pre.target jackd.service jacktrip.service snapserver.service
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python /usr/lib/python3.11/site-packages/snappiserverconfig.py
+
+[Install]
+WantedBy=network.target
+

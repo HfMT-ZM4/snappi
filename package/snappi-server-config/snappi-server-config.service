@@ -1,0 +1,12 @@
+[Unit]
+Description=Snappi Server Config Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/uvicorn --host 0.0.0.0 --port 80 snappiserverconfig:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+

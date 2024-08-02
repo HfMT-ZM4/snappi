@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from '@/stores/user'
+import axios from 'axios'
+import API from '@/api'
 
 let _serializedCleanState = ''
 
@@ -12,9 +14,12 @@ export const useAppStore = defineStore('app', {
     bits: 16,
     periodsize: 512,
     latency: 600,
-    wifiSSID: 'Snappi',
-    wifiPassword: '12345678',
-    wifiMode: 'ap',
+    wifi: {
+      ssid: 'Snappi',
+      password: '12345678',
+      mode: 'ap',
+      band: 'auto',
+    },
     streams: [{
       name: 'Three',
       channels: [1, 7, 3],
@@ -105,6 +110,23 @@ export const useAppStore = defineStore('app', {
         })
       }
 
+      let unusedChannels = [...Array(state.channels).keys()].map(i =>i+1)
+      for (const stream of state.streams) {
+        for (const channel of stream.channels) {
+          const idx = unusedChannels.indexOf(channel)
+          if (idx >= 0) {
+            unusedChannels.splice(idx, 1)
+          }
+        }
+      }
+      if (unusedChannels.length) {
+        errors.push({
+          id: 'missing-channels',
+          type: 'info',
+          text: 'The following input channels are unused in your stream setup: ' + unusedChannels.join(', '),
+        })
+      }
+
       return errors.filter(el => {
         return (!el.id || !user.ignoredWarnings.includes(el.id))
       })
@@ -149,6 +171,31 @@ export const useAppStore = defineStore('app', {
 
     resetChanges() {
       Object.assign(this, JSON.parse(_serializedCleanState))
+    },
+
+    async loadConfig() {
+      try {
+        const data = await API.loadConfig()
+        Object.assign(this, data.data)
+        this.saveCleanState()
+      }
+      catch (error) {
+        alert(error)
+        console.log(error)
+      }
+    },
+
+    async saveConfig() {
+      try {
+        const response = await API.saveConfig(this.$state)
+        const user = useUserStore()
+        user.serviceRestart = response.data || []
+        this.loadConfig()
+      }
+      catch (error) {
+        alert(error)
+        console.log(error)
+      }
     },
   },
 })

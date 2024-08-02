@@ -1,1 +1,1 @@
-JACKTRIP_OPTS="-s --sendchannels 1 --udprt"
+JACKTRIP_OPTS="-s --receivechannels 8 --sendchannels 1 --udprt"

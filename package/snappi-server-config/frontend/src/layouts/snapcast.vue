@@ -3,7 +3,6 @@
     <SideBar />
     <v-main>
       <ActionBar />
-      <ConfigCheck />
       <router-view />
     </v-main>
     <AppFooter />

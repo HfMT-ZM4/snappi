@@ -12,8 +12,7 @@ LimitRTPRIO=infinity
 LimitMEMLOCK=infinity
 LimitRTTIME=infinity
 EnvironmentFile=-/etc/default/jackd
-EnvironmentFile=-/etc/snappi.conf
-ExecStart=/usr/bin/jackd $JACKD_OPTS -r${SNAPPI_SAMPLERATE}
+ExecStart=/usr/bin/jackd $JACKD_OPTS
 Restart=always
 RestartSec=2s
 

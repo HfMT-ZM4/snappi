@@ -1,5 +1,0 @@
-config BR2_PACKAGE_SNAPPI_SERVER_UI
-	bool "snappi-server-ui"
-        help
-	  Web-Interface to configure the Snappi Server
-

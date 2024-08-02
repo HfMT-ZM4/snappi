@@ -9,5 +9,5 @@
 <script setup>
 import { useAppStore } from '@/stores/app'
 const store = useAppStore()
-store.saveCleanState()
+store.loadConfig()
 </script>

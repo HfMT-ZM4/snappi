@@ -1,0 +1,92 @@
+{
+  "hostname": "snappi-server",
+  "channels": 8,
+  "samplerate": 48000,
+  "bits": 16,
+  "periodsize": 512,
+  "latency": 600,
+  "wifi": {
+    "ssid": "Snappi",
+    "password": "12345678",
+    "mode": "ap",
+    "band": "auto"
+  },
+  "streams": [
+    {
+      "name": "Mono-1",
+      "channels": [
+        1
+      ]
+    },
+    {
+      "name": "Mono-2",
+      "channels": [
+        2
+      ]
+    },
+    {
+      "name": "Mono-3",
+      "channels": [
+        3
+      ]
+    },
+    {
+      "name": "Mono-4",
+      "channels": [
+        4
+      ]
+    },
+    {
+      "name": "Mono-5",
+      "channels": [
+        5
+      ]
+    },
+    {
+      "name": "Mono-6",
+      "channels": [
+        6
+      ]
+    },
+    {
+      "name": "Mono-7",
+      "channels": [
+        7
+      ]
+    },
+    {
+      "name": "Mono-8",
+      "channels": [
+        8
+      ]
+    },
+    {
+      "name": "Stereo-1",
+      "channels": [
+        1,
+        2
+      ]
+    },
+    {
+      "name": "Stereo-2",
+      "channels": [
+        3,
+        4
+      ]
+    },
+    {
+      "name": "Stereo-3",
+      "channels": [
+        5,
+        6
+      ]
+    },
+    {
+      "name": "Stereo-4",
+      "channels": [
+        7,
+        8
+      ]
+    }
+  ]
+}

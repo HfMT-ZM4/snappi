@@ -1,1 +1,1 @@
-JACKD_OPTS="-R -P75 -ddummy -p2048"
+JACKD_OPTS="-R -P75 -ddummy -p2048 -r48000"
