@@ -1,5 +1,6 @@
 config BR2_PACKAGE_SNAPPI_SERVER_CONFIG
 	bool "snappi-server-config"
+    select BR2_PACKAGE_PYTHON3
     select BR2_PACKAGE_PYTHON_UVICORN
     select BR2_PACKAGE_PYTHON_FASTAPI
     select BR2_PACKAGE_PYTHON_PYYAML
