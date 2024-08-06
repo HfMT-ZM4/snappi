@@ -117,7 +117,7 @@ def update_snapserver_config(config: Config):
             sampleformat=f'{config.samplerate}:{config.bits}:{len(stream.channels)}',
             idle_threshold=5000,
             jack_time='true',
-            **{f'autoconnect{idx}': f'^JackTrip:receive_{num}$' for (num, idx) in enumerate(stream.channels, start=1)},
+            **{f'autoconnect{idx}': f'^JackTrip:receive_{num}$' for (idx, num) in enumerate(stream.channels, start=1)},
         ))
 
     sources = '\n'.join(sources)
