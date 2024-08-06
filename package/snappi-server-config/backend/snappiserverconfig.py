@@ -2,6 +2,8 @@ import subprocess
 from pathlib import Path
 from typing import List, Annotated
 
+import yaml
+
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -28,6 +30,10 @@ SYSTEMCTL_CMD = BIN_DIR / 'systemctl'
 JOURNALCTL_CMD = BIN_DIR / 'journalctl'
 
 FRONTEND_FILES_DIR = '/usr/share/snappi-server-config/frontend'
+
+CLOUD_INIT_USER_DATA_FILE = Path('/boot/user-data')
+CLOUD_INIT_NETWORK_CONFIG_FILE = Path('/boot/network-.con')
+
 
 DEFAULT_CONFIG = {
     'hostname': 'snappi-server',
@@ -251,12 +257,7 @@ def write_file_if_changed(filename, value, mode=None):
     except FileNotFoundError:
         original = None
     if original == value:
-        print(f'FILE {filename} unchanged')
         return False
-    print(f'==== FILE {filename} changed, original/new:')
-    print(file.read_text())
-    print('-------------------------------')
-    print(value)
     file.write_text(value)
     if mode is not None:
         file.chmod(mode)
@@ -279,9 +280,47 @@ def update_config(config: Config) -> List[str]:
     return list(restart_services)
 
 
+def read_yaml(filename):
+    try:
+        with Path(filename).open() as f:
+            return yaml.safe_load(f)
+    except:
+        return {}
+
+
+def apply_cloud_init_data():
+    ci_user = read_yaml(CLOUD_INIT_USER_DATA_FILE)
+    ci_network = read_yaml(CLOUD_INIT_NETWORK_CONFIG_FILE)
+
+    if not ci_user and not ci_network:
+        return
+
+    config = load_config()
+
+    ci_hostname = ci_user.get('hostname', '')
+    if ci_hostname:
+        config.hostname = ci_hostname
+
+    ap_conf = ci_network.get('wifis', {}).get('wlan0', {}).get('access-points', {})
+    ssid, args = list(ap_conf.items())[0]
+    psk = args.get('password')
+    if ssid and psk:
+        config.wifi.ssid = ssid
+        config.wifi.password = psk
+        config.wifi.mode = 'client'
+        config.wifi.band = 'auto'
+
+    store_config(config)
+
+    if CLOUD_INIT_USER_DATA_FILE.exists():
+        CLOUD_INIT_USER_DATA_FILE.unlink()
+
+    if CLOUD_INIT_NETWORK_CONFIG_FILE.exists():
+        CLOUD_INIT_NETWORK_CONFIG_FILE.unlink()
+
+
 def systemctl(*args):
     cmd = [SYSTEMCTL_CMD, *args]
-    print(f'EXEC {cmd}')
     return subprocess.run(cmd)
 
 
@@ -377,4 +416,5 @@ async def custom_404_handler(request, exc):
 
 
 if __name__ == '__main__':
+    apply_cloud_init_data()
     update_config(load_config())
