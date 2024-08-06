@@ -1,10 +1,10 @@
 config BR2_PACKAGE_SNAPPI_SERVER_CONFIG
 	bool "snappi-server-config"
     select BR2_PACKAGE_PYTHON3
+    select BR2_PACKAGE_PYTHON3_SSL
     select BR2_PACKAGE_PYTHON_UVICORN
     select BR2_PACKAGE_PYTHON_FASTAPI
     select BR2_PACKAGE_PYTHON_PYYAML
-    select BR2_PACKAGE_PYTHON3_SSL
         help
 	  Web-Interface and tools to configure the Snappi Server
 
