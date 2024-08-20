@@ -3,7 +3,8 @@
         <v-col>
           <v-text-field
               label="Stream Name"
-              v-model="map.name"
+              :modelValue="map.name"
+              @change="map.name = $event.target.value"
               hide-details
           />
         </v-col>
