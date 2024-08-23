@@ -1,0 +1,13 @@
+[Unit]
+Description=Snappi UAC2 Service
+Before=snapserver.service
+After=snappi-server-config-startup.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/uac2.sh
+
+[Install]
+WantedBy=multi-user.target
+
+

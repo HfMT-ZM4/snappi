@@ -22,6 +22,9 @@ define SNAPPI_SERVER_CONFIG_INSTALL_TARGET_CMDS
 
     $(INSTALL) -D -m 0644 $(SNAPPI_SERVER_CONFIG_PKGDIR)/backend/snappiserverconfig.py \
 		$(TARGET_DIR)/usr/lib/python3.11/site-packages/snappiserverconfig.py
+
+    $(INSTALL) -D -m 0755 $(SNAPPI_SERVER_CONFIG_PKGDIR)/uac2.sh \
+		$(TARGET_DIR)/usr/bin/uac2.sh
 endef
 
 define SNAPPI_SERVER_CONFIG_INSTALL_INIT_SYSTEMD
@@ -29,7 +32,8 @@ define SNAPPI_SERVER_CONFIG_INSTALL_INIT_SYSTEMD
 		$(TARGET_DIR)/usr/lib/systemd/system/snappi-server-config-startup.service
 	$(INSTALL) -D -m 0644 $(SNAPPI_SERVER_CONFIG_PKGDIR)/snappi-server-config.service \
 		$(TARGET_DIR)/usr/lib/systemd/system/snappi-server-config.service
+	$(INSTALL) -D -m 0644 $(SNAPPI_SERVER_CONFIG_PKGDIR)/uac2.service \
+		$(TARGET_DIR)/usr/lib/systemd/system/uac2.service
 endef
 
 $(eval $(generic-package))
-

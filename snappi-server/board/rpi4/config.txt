@@ -12,6 +12,9 @@ hdmi_ignore_hotplug=1
 # Disable Bluetooth
 dtoverlay=disable-bt
 
+# Enable USB-C OTG
+dtoverlay=dwc2
+
 # Enable UART for debugging
 enable_uart=1
 

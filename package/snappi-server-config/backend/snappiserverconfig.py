@@ -1,3 +1,4 @@
+import re
 import subprocess
 from pathlib import Path
 from typing import List, Annotated
@@ -22,6 +23,7 @@ NM_CONNECTION_FILENAME = 'wifi.nmconnection'
 SNAPPI_CONFIG_FILE = ETC_DIR / 'snappi.json'
 JACKTRIP_CONFIG_FILE = ETC_DIR / 'default/jacktrip'
 JACKD_CONFIG_FILE = ETC_DIR / 'default/jackd'
+UAC2_CONFIG_FILE = ETC_DIR / 'default/uac2'
 SNAPSERVER_CONFIG_FILE = ETC_DIR / 'snapserver.conf'
 HOSTS_FILE = ETC_DIR / 'hosts'
 HOSTNAME_FILE = ETC_DIR / 'hostname'
@@ -62,6 +64,14 @@ DEFAULT_CONFIG = {
         {'name': 'Stereo-3', 'channels': [5,6]},
         {'name': 'Stereo-4', 'channels': [7,8]},
     ],
+    'uac2': {
+        'enable': True,
+        'name': 'SnappiAudio',
+        'serial': '1',
+        'channels': 2,
+        'samplerate': 44100,
+        'bits': 16,
+    },
 }
 
 
@@ -77,6 +87,15 @@ class WifiConfig(BaseModel):
     band: str
 
 
+class UAC2Config(BaseModel):
+    enable: bool
+    name: str
+    serial: str
+    channels: int
+    samplerate: int
+    bits: int
+
+
 class Config(BaseModel):
     hostname: str
     channels: int
@@ -86,6 +105,7 @@ class Config(BaseModel):
     latency: int
     wifi: WifiConfig
     streams: List[StreamConfig]
+    uac2: UAC2Config | None
 
 
 def load_config() -> Config:
@@ -98,7 +118,7 @@ def store_config(config: Config):
     return write_file_if_changed(SNAPPI_CONFIG_FILE, value)
 
 
-def _snapserver_source_url(**kwargs):
+def _snapserver_source_url(source, **kwargs):
     params = []
     for key, val in kwargs.items():
         if isinstance(val, (list, tuple)):
@@ -106,13 +126,28 @@ def _snapserver_source_url(**kwargs):
         else:
             params.append(f'{key}={val}')
     url = '&'.join(params)
-    return f'source = jack:///?{url}'
+    return f'source = {source}:///?{url}'
+
+
+def generate_usb_card_sources():
+    sources = []
+    for card in get_usb_audio_cards():
+        sampleformat=f'44100:16:{card["channels"]}'
+        sources.append(_snapserver_source_url(
+            source='alsa',
+            name=f'USB {card["id"]}',
+            device=f'plughw:{card["idx"]},0',
+            sampleformat=sampleformat,
+            idle_threshold=5000,
+        ))
+    return sources
 
 
 def update_snapserver_config(config: Config):
-    sources = []
+    sources = generate_usb_card_sources()
     for stream in config.streams:
         sources.append(_snapserver_source_url(
+            source='jack',
             name=stream.name,
             sampleformat=f'{config.samplerate}:{config.bits}:{len(stream.channels)}',
             idle_threshold=5000,
@@ -250,6 +285,63 @@ def update_jackd_config(config: Config):
     return write_file_if_changed(JACKD_CONFIG_FILE, value)
 
 
+def update_uac2_config(config: Config):
+    if config.uac2:
+        channel_mask = int('1' * config.uac2.channels, 2)
+        sample_size = config.uac2.bits // 8
+        enable = 'yes' if config.uac2.enable else 'no'
+        value = striplines(f'''
+            UAC2_ENABLE="{enable}"
+            UAC2_NAME="{config.uac2.name}"
+            UAC2_SERIAL="{config.uac2.serial}"
+            UAC2_CHANNEL_MASK={channel_mask}
+            UAC2_SAMPLE_RATE={config.uac2.samplerate}
+            UAC2_SAMPLE_SIZE={sample_size}
+        ''')
+    else:
+        value = 'UAC2_ENABLE="no"'
+    changed = write_file_if_changed(UAC2_CONFIG_FILE, value)
+    if changed:
+        systemctl('restart', 'uac2')
+    return changed
+
+
+def get_usb_audio_cards():
+    cards = []
+    for card_dir in Path('/proc/asound').glob('card[0-9]'):
+        try:
+            card_id = (card_dir / 'id').read_text().strip()
+            pcm_info = (card_dir / 'pcm0c' / 'info').read_text()
+            card_idx = int(re.findall(r'^card: (\d+)', pcm_info, re.MULTILINE)[0].strip())
+            pcm_name = re.findall(r'^name: (.*)', pcm_info, re.MULTILINE)[0].strip()
+        except Exception as e:
+            print(f'Error retrieving USB info: {e}')
+            continue
+
+        try:
+            res = subprocess.run([
+                '/usr/bin/arecord',
+                '-D', f'hw:{card_idx},0',
+                '--dump-hw-params',
+                '-c', '256'
+            ], capture_output=True)
+            channels = int(re.findall(
+                r'^CHANNELS: (\d+)',
+                res.stderr.decode('utf-8'),
+                re.MULTILINE)[0])
+        except Exception as e:
+            print(f'Error retrieving USB channel info: {e}')
+            continue
+
+        cards.append({
+            'id': card_id,
+            'idx': card_idx,
+            'name': pcm_name,
+            'channels': channels,
+        })
+    return cards
+
+
 def write_file_if_changed(filename, value, mode=None):
     file = Path(filename)
     try:
@@ -268,14 +360,15 @@ def update_config(config: Config) -> List[str]:
     restart_services = set()
 
     for method, services in (
-        (update_hostname, 'system'),
-        (update_wifi_config, 'system'),
-        (update_jackd_config, 'jackd'),
-        (update_jacktrip_config, 'jacktrip'),
-        (update_snapserver_config, 'snapserver'),
+        (update_hostname, ['system']),
+        (update_wifi_config, ['system']),
+        (update_jackd_config, ['jackd']),
+        (update_jacktrip_config, ['jacktrip']),
+        (update_uac2_config, ['snapserver']),
+        (update_snapserver_config, ['snapserver']),
     ):
         if method(config):
-            restart_services.add(services)
+            restart_services.update(services)
 
     return list(restart_services)
 
@@ -329,7 +422,9 @@ def restart_services(services: List[str]):
         systemctl('reboot')
         return
 
-    if 'jackd' in services:
+    if 'uac2' in services:
+        systemctl('restart', 'uac2')
+    elif 'jackd' in services:
         systemctl('stop', 'snapserver')
         systemctl('stop', 'jacktrip')
         systemctl('restart', 'jackd')

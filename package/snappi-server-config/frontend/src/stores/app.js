@@ -24,6 +24,14 @@ export const useAppStore = defineStore('app', {
       name: 'Three',
       channels: [1, 7, 3],
     }],
+    uac2: {
+      enable: false,
+      name: 'SnappiAudio',
+      serial: 1,
+      channels: 2,
+      samplerate: 44100,
+      bits: 16,
+    },
   }),
 
   getters: {
@@ -182,6 +190,7 @@ export const useAppStore = defineStore('app', {
       catch (error) {
         alert(error)
         console.log(error)
+        this.saveCleanState()
       }
     },
 

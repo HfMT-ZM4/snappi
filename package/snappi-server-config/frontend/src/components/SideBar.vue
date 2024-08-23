@@ -9,6 +9,7 @@
     <v-list-item link to="/config/audio" title="Audio"></v-list-item>
     <v-list-item link to="/config/streams" title="Stream Setup"></v-list-item>
     <v-list-item link to="/config/wifi" title="Wifi"></v-list-item>
+    <v-list-item link to="/config/uac2" title="Virtual USB Audio"></v-list-item>
     <v-list-item link to="/config/system" title="System"></v-list-item>
     <v-divider></v-divider>
     <v-list-item link to="/status" title="Status &amp; Logs"></v-list-item>
