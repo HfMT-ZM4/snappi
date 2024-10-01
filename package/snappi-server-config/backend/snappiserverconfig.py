@@ -169,6 +169,9 @@ def update_snapserver_config(config: Config):
         codec = pcm
         buffer = {config.latency}
 
+        [logging]
+        filter = *:notice
+
         {sources}
     ''')
 
