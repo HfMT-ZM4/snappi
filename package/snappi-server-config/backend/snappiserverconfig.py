@@ -165,12 +165,12 @@ def update_snapserver_config(config: Config):
         [http]
         doc_root = /usr/share/snapserver/snapweb
 
+        [logging]
+        filter = *:notice
+
         [stream]
         codec = pcm
         buffer = {config.latency}
-
-        [logging]
-        filter = *:notice
 
         {sources}
     ''')
