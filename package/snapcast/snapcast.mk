@@ -6,7 +6,7 @@
 
 #SNAPCAST_VERSION = v0.28.0
 #SNAPCAST_SITE = $(call github,badaix,snapcast,$(SNAPCAST_VERSION))
-SNAPCAST_VERSION = snappi-release
+SNAPCAST_VERSION = snappi-pw-0.1.0
 SNAPCAST_SITE = $(call github,mawe42,snapcast,$(SNAPCAST_VERSION))
 SNAPCAST_SOURCE = snapcast-$(SNAPCAST_VERSION).tar.gz
 SNAPCAST_DEPENDENCIES = libogg alsa-lib avahi boost 
