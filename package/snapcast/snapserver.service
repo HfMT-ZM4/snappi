@@ -1,13 +1,13 @@
 [Unit]
 Description=Snapcast server
-Wants=avahi-daemon.service
-After=network-online.target time-sync.target avahi-daemon.service
+Wants=avahi-daemon.service pipewire.service
+After=network-online.target time-sync.target avahi-daemon.service pipewire.service
 
 [Service]
 PermissionsStartOnly=true
 EnvironmentFile=/etc/default/snapserver
 ExecStartPre=/usr/bin/install -o snappi -g audio -d /var/lib/snapserver
-ExecStart=/usr/bin/snapserver --logging.sink=system $SNAPSERVER_OPTS
+ExecStart=pw-jack /usr/bin/snapserver --logging.sink=system $SNAPSERVER_OPTS
 User=snappi
 Group=audio
 Restart=always
