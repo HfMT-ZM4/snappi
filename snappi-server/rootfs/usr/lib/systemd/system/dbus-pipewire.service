@@ -1,0 +1,11 @@
+Unit]
+Description=Pipewire D-Bus Session Message Bus
+
+[Service]
+ExecStart=/usr/bin/dbus-daemon --session --nofork --nopidfile --syslog-only --address=unix:path=/tmp/dbus-pipewire
+User=pipewire
+Group=audio
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
