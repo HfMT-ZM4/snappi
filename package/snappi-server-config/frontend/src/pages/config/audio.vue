@@ -5,7 +5,7 @@
       <v-card-text>
 
         <v-number-input
-          label="Number of input channels"
+          label="Number of JackTrip input channels"
           required
           v-model="store.channels"
           hint="The number of channels this server accepts via JackTrip"

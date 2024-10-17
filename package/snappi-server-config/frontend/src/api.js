@@ -8,6 +8,10 @@ async function loadConfig() {
   return api.get('/config')
 }
 
+async function getPorts() {
+  return api.get('/ports')
+}
+
 async function saveConfig(config) {
     return api.post('/config', config)
 }
@@ -38,4 +42,5 @@ export default {
   restartServices,
   getServiceStatus,
   getLogs,
+  getPorts,
 }

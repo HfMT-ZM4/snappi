@@ -13,6 +13,8 @@ from fastapi.exception_handlers import http_exception_handler
 
 from pydantic import BaseModel
 
+import pw_utils
+
 
 ETC_DIR = Path('/etc')
 BIN_DIR = Path('/usr/bin')
@@ -51,18 +53,18 @@ DEFAULT_CONFIG = {
         'band': 'auto',
     },
     'streams': [
-        {'name': 'Mono-1', 'channels': [1]},
-        {'name': 'Mono-2', 'channels': [2]},
-        {'name': 'Mono-3', 'channels': [3]},
-        {'name': 'Mono-4', 'channels': [4]},
-        {'name': 'Mono-5', 'channels': [5]},
-        {'name': 'Mono-6', 'channels': [6]},
-        {'name': 'Mono-7', 'channels': [7]},
-        {'name': 'Mono-8', 'channels': [8]},
-        {'name': 'Stereo-1', 'channels': [1,2]},
-        {'name': 'Stereo-2', 'channels': [3,4]},
-        {'name': 'Stereo-3', 'channels': [5,6]},
-        {'name': 'Stereo-4', 'channels': [7,8]},
+        {'name': 'Mono-1', 'ports': [['JackTrip:::receive_1']]},
+        {'name': 'Mono-2', 'ports': [['JackTrip:::receive_2']]},
+        {'name': 'Mono-3', 'ports': [['JackTrip:::receive_3']]},
+        {'name': 'Mono-4', 'ports': [['JackTrip:::receive_4']]},
+        {'name': 'Mono-5', 'ports': [['JackTrip:::receive_5']]},
+        {'name': 'Mono-6', 'ports': [['JackTrip:::receive_6']]},
+        {'name': 'Mono-7', 'ports': [['JackTrip:::receive_7']]},
+        {'name': 'Mono-8', 'ports': [['JackTrip:::receive_8']]},
+        {'name': 'Stereo-1', 'ports': [['JackTrip:::receive_1'], ['JackTrip:::receive_2']]},
+        {'name': 'Stereo-2', 'ports': [['JackTrip:::receive_3'], ['JackTrip:::receive_4']]},
+        {'name': 'Stereo-3', 'ports': [['JackTrip:::receive_5'], ['JackTrip:::receive_6']]},
+        {'name': 'Stereo-4', 'ports': [['JackTrip:::receive_7'], ['JackTrip:::receive_8']]},
     ],
     'uac2': {
         'enable': True,
@@ -77,7 +79,7 @@ DEFAULT_CONFIG = {
 
 class StreamConfig(BaseModel):
     name: str
-    channels: List[int]
+    ports: List[str]
 
 
 class WifiConfig(BaseModel):
@@ -129,30 +131,15 @@ def _snapserver_source_url(source, **kwargs):
     return f'source = {source}:///?{url}'
 
 
-def generate_usb_card_sources():
-    sources = []
-    for card in get_usb_audio_cards():
-        sampleformat=f'44100:16:{card["channels"]}'
-        sources.append(_snapserver_source_url(
-            source='alsa',
-            name=f'USB {card["id"]}',
-            device=f'plughw:{card["idx"]},0',
-            sampleformat=sampleformat,
-            idle_threshold=5000,
-        ))
-    return sources
-
-
 def update_snapserver_config(config: Config):
-    sources = generate_usb_card_sources()
+    sources = []
     for stream in config.streams:
         sources.append(_snapserver_source_url(
             source='jack',
             name=stream.name,
-            sampleformat=f'{config.samplerate}:{config.bits}:{len(stream.channels)}',
+            sampleformat=f'{config.samplerate}:{config.bits}:{len(stream.ports)}',
             idle_threshold=5000,
             jack_time='true',
-            **{f'autoconnect{idx}': f'^JackTrip:receive_{num}$' for (idx, num) in enumerate(stream.channels, start=1)},
         ))
 
     sources = '\n'.join(sources)
@@ -310,42 +297,6 @@ def update_uac2_config(config: Config):
     return changed
 
 
-def get_usb_audio_cards():
-    cards = []
-    for card_dir in Path('/proc/asound').glob('card[0-9]'):
-        try:
-            card_id = (card_dir / 'id').read_text().strip()
-            pcm_info = (card_dir / 'pcm0c' / 'info').read_text()
-            card_idx = int(re.findall(r'^card: (\d+)', pcm_info, re.MULTILINE)[0].strip())
-            pcm_name = re.findall(r'^name: (.*)', pcm_info, re.MULTILINE)[0].strip()
-        except Exception as e:
-            print(f'Error retrieving USB info: {e}')
-            continue
-
-        try:
-            res = subprocess.run([
-                '/usr/bin/arecord',
-                '-D', f'hw:{card_idx},0',
-                '--dump-hw-params',
-                '-c', '256'
-            ], capture_output=True)
-            channels = int(re.findall(
-                r'^CHANNELS: (\d+)',
-                res.stderr.decode('utf-8'),
-                re.MULTILINE)[0])
-        except Exception as e:
-            print(f'Error retrieving USB channel info: {e}')
-            continue
-
-        cards.append({
-            'id': card_id,
-            'idx': card_idx,
-            'name': pcm_name,
-            'channels': channels,
-        })
-    return cards
-
-
 def write_file_if_changed(filename, value, mode=None):
     file = Path(filename)
     try:
@@ -368,7 +319,7 @@ def update_config(config: Config) -> List[str]:
         (update_wifi_config, ['system']),
         (update_jackd_config, ['jackd']),
         (update_jacktrip_config, ['jacktrip']),
-        (update_uac2_config, ['snapserver']),
+        (update_uac2_config, []),
         (update_snapserver_config, ['snapserver']),
     ):
         if method(config):
@@ -475,6 +426,11 @@ app.add_middleware(
 @app.get('/api/config')
 async def get_config():
     return load_config()
+
+
+@app.get('/api/ports')
+async def get_ports():
+    return list(pw_utils.get_pw_ports().values())
 
 
 @app.post('/api/config')

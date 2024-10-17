@@ -22,7 +22,7 @@ export const useAppStore = defineStore('app', {
     },
     streams: [{
       name: 'Three',
-      channels: [1, 7, 3],
+      ports: [],
     }],
     uac2: {
       enable: false,
@@ -51,17 +51,6 @@ export const useAppStore = defineStore('app', {
 
     isDirty: (state) => {
       return _serializedCleanState != JSON.stringify(state.$state)
-    },
-
-    streamError: (state) => {
-      return (idx) => {
-        const stream = state.streams[idx]
-        for (const channel of stream.channels) {
-          if (channel > state.channels) {
-            return true
-          }
-        }
-      }
     },
 
     configErrors: (state) => {
@@ -104,37 +93,6 @@ export const useAppStore = defineStore('app', {
         })
       }
 
-      let missingChannel = false
-      for (const idx in state.streams) {
-        if (state.streamError(idx)) {
-          missingChannel = true
-          break
-        }
-      }
-      if (missingChannel) {
-        errors.push({
-          type: 'error',
-          text: 'Your stream setup contains channels that are not available anymore!',
-        })
-      }
-
-      let unusedChannels = [...Array(state.channels).keys()].map(i =>i+1)
-      for (const stream of state.streams) {
-        for (const channel of stream.channels) {
-          const idx = unusedChannels.indexOf(channel)
-          if (idx >= 0) {
-            unusedChannels.splice(idx, 1)
-          }
-        }
-      }
-      if (unusedChannels.length) {
-        errors.push({
-          id: 'missing-channels',
-          type: 'info',
-          text: 'The following input channels are unused in your stream setup: ' + unusedChannels.join(', '),
-        })
-      }
-
       return errors.filter(el => {
         return (!el.id || !user.ignoredWarnings.includes(el.id))
       })
@@ -146,14 +104,17 @@ export const useAppStore = defineStore('app', {
       for (let i = 0; i < this.channels; i++) {
          this.streams.push({
             name: 'Mono-' + (i+1),
-            channels: [i+1],
+            ports: [['JackTrip', `receive_${i+1}`]],
          })
       }
 
       for (let i = 0; i < Math.floor(this.channels / 2); i++) {
          this.streams.push({
             name: 'Stereo-' + (i+1),
-            channels: [(i * 2) + 1, (i * 2) + 2],
+            ports: [
+              ['JackTrip', `receive_${(i * 2) + 1}`],
+              ['JackTrip', `receive_${(i * 2) + 2}`],
+            ],
          })
       }
     },
@@ -161,7 +122,7 @@ export const useAppStore = defineStore('app', {
     addStream() {
       this.streams.push({
         name: this.uniqueStreamName,
-        channels: [],
+        ports: [],
       })
     },
 

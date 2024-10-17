@@ -8,6 +8,11 @@
 
 <script setup>
 import { useAppStore } from '@/stores/app'
-const store = useAppStore()
-store.loadConfig()
+import { usePipeWireStore } from '@/stores/pipewire'
+
+const userStore = useAppStore()
+userStore.loadConfig()
+
+const pwStore = usePipeWireStore()
+pwStore.updatePorts()
 </script>

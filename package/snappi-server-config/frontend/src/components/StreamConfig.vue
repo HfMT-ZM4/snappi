@@ -10,13 +10,12 @@
         </v-col>
         <v-col>
           <v-select
-              label="Input Channels"
-              :items="channelItems"
-              v-model="map.channels"
+              label="Input Ports"
+              :items="portItems"
+              v-model="map.ports"
               multiple
               clearable
               hide-details
-              :bg-color="invalid ? 'error' : ''"
           >
           </v-select>
         </v-col>
@@ -25,7 +24,7 @@
             variant="text"
             prepend-icon="mdi-delete"
             size="x-large"
-            @click="store.removeStream(props.idx)"
+            @click="appStore.removeStream(props.idx)"
             />
         </v-col>
       </v-row>
@@ -33,18 +32,23 @@
 
 <script setup>
 import { useAppStore } from '@/stores/app'
+import { usePipeWireStore } from '@/stores/pipewire'
+
 import { computed } from 'vue'
 
 const props = defineProps(['idx'])
-const store = useAppStore()
-const map = store.streams[props.idx]
+const appStore = useAppStore()
+const map = appStore.streams[props.idx]
 
-const channelItems = computed(() => {
-  return [...Array(store.channels).keys()].map(i => i + 1)
-})
+const pwStore = usePipeWireStore()
 
-const invalid = computed(() => {
-  return store.streamError(props.idx)
+const portItems = computed(() => {
+  return pwStore.ports.map(port => {
+    return {
+      title: `${port.description} - ${port.name}`,
+      value: port.path,
+    }
+  })
 })
 </script>
 
