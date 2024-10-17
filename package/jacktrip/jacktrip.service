@@ -1,8 +1,8 @@
 [Unit]
 Description=jacktrip
-Requires=jackd.service
-Wants=jackd.service
-After=network.target jackd.service
+Requires=pipewire.service
+Wants=pipewire.service
+After=network.target pipewire.service
 
 [Install]
 WantedBy=multi-user.target
@@ -14,5 +14,5 @@ LimitRTPRIO=infinity
 LimitMEMLOCK=infinity
 LimitRTTIME=infinity
 EnvironmentFile=-/etc/default/jacktrip
-ExecStart=/usr/bin/jacktrip $JACKTRIP_OPTS
+ExecStart=pw-jack /usr/bin/jacktrip $JACKTRIP_OPTS
 Restart=always
