@@ -21,7 +21,7 @@ define SNAPPI_SERVER_CONFIG_INSTALL_TARGET_CMDS
 	cp -dpfr $(@D)/frontend/dist/* $(SNAPPI_SERVER_CONFIG_FRONTEND_INSTALL_DIR)
 
     $(INSTALL) -D -m 0644 $(SNAPPI_SERVER_CONFIG_PKGDIR)/backend/snappiserverconfig.py \
-		$(TARGET_DIR)/usr/lib/python3.11/site-packages/snappiserverconfig.py
+		$(TARGET_DIR)/usr/lib/python$(PYTHON3_VERSION_MAJOR)/site-packages/snappiserverconfig.py
 
     $(INSTALL) -D -m 0755 $(SNAPPI_SERVER_CONFIG_PKGDIR)/uac2.sh \
 		$(TARGET_DIR)/usr/bin/uac2.sh
