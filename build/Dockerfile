@@ -49,7 +49,7 @@ RUN chown builder:builder /buildroot
 
 USER builder
 
-RUN git clone git://git.buildroot.net/buildroot --depth=1 --branch=2024.05 /buildroot
+RUN git clone git://git.buildroot.net/buildroot --depth=1 --branch=2024.08 /buildroot
 
 WORKDIR /build
 
