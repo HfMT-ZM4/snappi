@@ -283,7 +283,8 @@ def update_jacktrip_config(config: Config):
 
 def update_jackd_config(config: Config):
     value = striplines(f'''
-        JACKD_OPTS="-R -P75 -ddummy -p{config.periodsize} -r{config.samplerate}"
+        JACK_PERIODSIZE={config.periodsize}
+        JACK_SAMPLERATE={config.samplerate}
     ''')
     return write_file_if_changed(JACKD_CONFIG_FILE, value)
 
@@ -430,7 +431,6 @@ def restart_services(services: List[str]):
     elif 'jackd' in services:
         systemctl('stop', 'snapserver')
         systemctl('stop', 'jacktrip')
-        systemctl('restart', 'jackd')
         systemctl('start', 'jacktrip')
         systemctl('start', 'snapserver')
     elif 'jacktrip' in services:
