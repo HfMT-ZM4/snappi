@@ -22,7 +22,7 @@ export const useAppStore = defineStore('app', {
     },
     streams: [{
       name: 'Three',
-      ports: [],
+      channels: 3,
     }],
     uac2: {
       enable: false,
@@ -35,6 +35,12 @@ export const useAppStore = defineStore('app', {
   }),
 
   getters: {
+    streamByName: (state) => {
+      return (name) => {
+        return state.streams.find(stream => stream.name === name)
+      }
+    },
+
     streamNames: (state) => {
       return state.streams.map(stream => stream.name)
     },
@@ -104,17 +110,14 @@ export const useAppStore = defineStore('app', {
       for (let i = 0; i < this.channels; i++) {
          this.streams.push({
             name: 'Mono-' + (i+1),
-            ports: [['JackTrip', `receive_${i+1}`]],
+            channels: 1,
          })
       }
 
       for (let i = 0; i < Math.floor(this.channels / 2); i++) {
          this.streams.push({
             name: 'Stereo-' + (i+1),
-            ports: [
-              ['JackTrip', `receive_${(i * 2) + 1}`],
-              ['JackTrip', `receive_${(i * 2) + 2}`],
-            ],
+            channels: 2,
          })
       }
     },
@@ -122,7 +125,7 @@ export const useAppStore = defineStore('app', {
     addStream() {
       this.streams.push({
         name: this.uniqueStreamName,
-        ports: [],
+        channels: 1,
       })
     },
 

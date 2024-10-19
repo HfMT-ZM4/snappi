@@ -13,6 +13,10 @@ def info(obj, name, default=None):
     return obj.get('info', {}).get(name, default)
 
 
+def params(obj, name, default=None):
+    return obj.get('info', {}).get('params', {}).get(name, default)
+
+
 @dataclass
 class Port:
     id: int
@@ -46,7 +50,8 @@ def get_pw_ports():
         if not raw_node:
             continue
 
-        if not prop(raw_node, 'media.class', '').startswith('Audio/'):
+        formats = params(raw_port, 'Format', [])
+        if not formats or formats[0].get('mediaType') != 'audio':
             continue
 
         port_name = prop(raw_port, 'port.name', '')
@@ -68,7 +73,7 @@ def get_pw_ports():
         )
 
         if port.monitor or not port.terminal:
-            continue
+            pass
 
         ports[port.id] = port
 
@@ -185,3 +190,8 @@ def setup_pw_links(links):
 
     for src_id, dst_id in to_connect:
         subprocess.check_call(['/usr/bin/pw-link', str(src_id), str(dst_id)])
+
+
+if __name__ == '__main__':
+    from dataclasses import asdict
+    print(json.dumps([asdict(p) for p in get_pw_ports().values()], indent=2))

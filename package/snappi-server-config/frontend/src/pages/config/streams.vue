@@ -1,9 +1,6 @@
 <template>
-  <v-container fluid>
-    <v-row>
-      <v-col>
-      </v-col>
-    </v-row>
+  <v-container class="pa-5">
+    <h2>Audio Streams</h2>
 
     <StreamConfig
         v-for="stream, idx in store.streams"
@@ -23,7 +20,7 @@
 </template>
 
 <script setup>
-import { useAppStore } from '@/stores/app'
+  import { useAppStore } from '@/stores/app'
 
 const store = useAppStore()
 </script>

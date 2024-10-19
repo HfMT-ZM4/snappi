@@ -15,109 +15,77 @@
     {
       "name": "Mono-1",
       "ports": [
-        [
-          "JackTrip:::receive_1"
-        ]
+        "JackTrip:::receive_1"
       ]
     },
     {
       "name": "Mono-2",
       "ports": [
-        [
-          "JackTrip:::receive_2"
-        ]
+        "JackTrip:::receive_2"
       ]
     },
     {
       "name": "Mono-3",
       "ports": [
-        [
-          "JackTrip:::receive_3"
-        ]
+        "JackTrip:::receive_3"
       ]
     },
     {
       "name": "Mono-4",
       "ports": [
-        [
-          "JackTrip:::receive_4"
-        ]
+        "JackTrip:::receive_4"
       ]
     },
     {
       "name": "Mono-5",
       "ports": [
-        [
-          "JackTrip:::receive_5"
-        ]
+        "JackTrip:::receive_5"
       ]
     },
     {
       "name": "Mono-6",
       "ports": [
-        [
-          "JackTrip:::receive_6"
-        ]
+        "JackTrip:::receive_6"
       ]
     },
     {
       "name": "Mono-7",
       "ports": [
-        [
-          "JackTrip:::receive_7"
-        ]
+        "JackTrip:::receive_7"
       ]
     },
     {
       "name": "Mono-8",
       "ports": [
-        [
-          "JackTrip:::receive_8"
-        ]
+        "JackTrip:::receive_8"
       ]
     },
     {
       "name": "Stereo-1",
       "ports": [
-        [
-          "JackTrip:::receive_1"
-        ],
-        [
-          "JackTrip:::receive_2"
-        ]
+        "JackTrip:::receive_1",
+        "JackTrip:::receive_2"
       ]
     },
     {
       "name": "Stereo-2",
       "ports": [
-        [
-          "JackTrip:::receive_3"
-        ],
-        [
-          "JackTrip:::receive_4"
-        ]
+        "JackTrip:::receive_3",
+        "JackTrip:::receive_4"
       ]
     },
     {
       "name": "Stereo-3",
       "ports": [
-        [
-          "JackTrip:::receive_5"
-        ],
-        [
-          "JackTrip:::receive_6"
-        ]
+        "JackTrip:::receive_5",
+        "JackTrip:::receive_6"
       ]
     },
     {
       "name": "Stereo-4",
       "ports": [
-        [
-          "JackTrip:::receive_7"
-        ],
-        [
-          "JackTrip:::receive_8"
-        ]
+        "JackTrip:::receive_7",
+        "JackTrip:::receive_8"
       ]
     }
   ],

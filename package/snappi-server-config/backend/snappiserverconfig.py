@@ -1,3 +1,4 @@
+import hashlib
 import re
 import subprocess
 from pathlib import Path
@@ -18,6 +19,11 @@ import pw_utils
 
 ETC_DIR = Path('/etc')
 BIN_DIR = Path('/usr/bin')
+BOOT_DIR = Path('/boot')
+
+ETC_DIR = Path('/home/marcus/tmp/snappi/etc')
+BIN_DIR = Path('/home/marcus/tmp/snappi/bin')
+BOOT_DIR = Path('/home/marcus/tmp/snappi/boot')
 
 NM_CONFIG_DIR = ETC_DIR / 'NetworkManager/system-connections'
 NM_CONNECTION_FILENAME = 'wifi.nmconnection'
@@ -34,9 +40,10 @@ SYSTEMCTL_CMD = BIN_DIR / 'systemctl'
 JOURNALCTL_CMD = BIN_DIR / 'journalctl'
 
 FRONTEND_FILES_DIR = '/usr/share/snappi-server-config/frontend'
+FRONTEND_FILES_DIR = '/home/marcus/snappi/snappi/package/snappi-server-config/frontend/dist'
 
-CLOUD_INIT_USER_DATA_FILE = Path('/boot/user-data')
-CLOUD_INIT_NETWORK_CONFIG_FILE = Path('/boot/network-.con')
+CLOUD_INIT_USER_DATA_FILE = BOOT_DIR / 'user-data'
+CLOUD_INIT_NETWORK_CONFIG_FILE = BOOT_DIR / 'network-.con'
 
 
 DEFAULT_CONFIG = {
@@ -53,23 +60,24 @@ DEFAULT_CONFIG = {
         'band': 'auto',
     },
     'streams': [
-        {'name': 'Mono-1', 'ports': [['JackTrip:::receive_1']]},
-        {'name': 'Mono-2', 'ports': [['JackTrip:::receive_2']]},
-        {'name': 'Mono-3', 'ports': [['JackTrip:::receive_3']]},
-        {'name': 'Mono-4', 'ports': [['JackTrip:::receive_4']]},
-        {'name': 'Mono-5', 'ports': [['JackTrip:::receive_5']]},
-        {'name': 'Mono-6', 'ports': [['JackTrip:::receive_6']]},
-        {'name': 'Mono-7', 'ports': [['JackTrip:::receive_7']]},
-        {'name': 'Mono-8', 'ports': [['JackTrip:::receive_8']]},
-        {'name': 'Stereo-1', 'ports': [['JackTrip:::receive_1'], ['JackTrip:::receive_2']]},
-        {'name': 'Stereo-2', 'ports': [['JackTrip:::receive_3'], ['JackTrip:::receive_4']]},
-        {'name': 'Stereo-3', 'ports': [['JackTrip:::receive_5'], ['JackTrip:::receive_6']]},
-        {'name': 'Stereo-4', 'ports': [['JackTrip:::receive_7'], ['JackTrip:::receive_8']]},
+        {'name': 'Mono-1',   'channels': 1, },
+        {'name': 'Mono-2',   'channels': 1, },
+        {'name': 'Mono-3',   'channels': 1, },
+        {'name': 'Mono-4',   'channels': 1, },
+        {'name': 'Mono-5',   'channels': 1, },
+        {'name': 'Mono-6',   'channels': 1, },
+        {'name': 'Mono-7',   'channels': 1, },
+        {'name': 'Mono-8',   'channels': 1, },
+        {'name': 'Stereo-1', 'channels': 2, },
+        {'name': 'Stereo-2', 'channels': 2, },
+        {'name': 'Stereo-3', 'channels': 2, },
+        {'name': 'Stereo-4', 'channels': 2, },
+    ],
+    'routes': [
     ],
     'uac2': {
         'enable': True,
         'name': 'SnappiAudio',
-        'serial': '1',
         'channels': 2,
         'samplerate': 44100,
         'bits': 16,
@@ -79,6 +87,7 @@ DEFAULT_CONFIG = {
 
 class StreamConfig(BaseModel):
     name: str
+    channels: int
     ports: List[str]
 
 
@@ -92,7 +101,6 @@ class WifiConfig(BaseModel):
 class UAC2Config(BaseModel):
     enable: bool
     name: str
-    serial: str
     channels: int
     samplerate: int
     bits: int
@@ -137,7 +145,7 @@ def update_snapserver_config(config: Config):
         sources.append(_snapserver_source_url(
             source='jack',
             name=stream.name,
-            sampleformat=f'{config.samplerate}:{config.bits}:{len(stream.ports)}',
+            sampleformat=f'{config.samplerate}:{config.bits}:{stream.channels}',
             idle_threshold=5000,
             jack_time='true',
         ))
@@ -277,16 +285,25 @@ def update_jackd_config(config: Config):
 
 
 def update_uac2_config(config: Config):
-    if config.uac2:
-        channel_mask = int('1' * config.uac2.channels, 2)
-        sample_size = config.uac2.bits // 8
-        enable = 'yes' if config.uac2.enable else 'no'
+    uac2 = config.uac2
+    if uac2:
+        channel_mask = int('1' * uac2.channels, 2)
+        sample_size = uac2.bits // 8
+        enable = 'yes' if uac2.enable else 'no'
+        serial = str(hashlib.md5(
+            '-'.join([
+                uac2.name,
+                str(uac2.samplerate),
+                str(uac2.bits),
+                str(uac2.channels),
+            ]).encode()
+        ).hexdigest())
         value = striplines(f'''
             UAC2_ENABLE="{enable}"
-            UAC2_NAME="{config.uac2.name}"
-            UAC2_SERIAL="{config.uac2.serial}"
+            UAC2_NAME="{uac2.name} ({config.hostname})"
+            UAC2_SERIAL="{serial}"
             UAC2_CHANNEL_MASK={channel_mask}
-            UAC2_SAMPLE_RATE={config.uac2.samplerate}
+            UAC2_SAMPLE_RATE={uac2.samplerate}
             UAC2_SAMPLE_SIZE={sample_size}
         ''')
     else:
@@ -470,5 +487,7 @@ async def custom_404_handler(request, exc):
 
 
 if __name__ == '__main__':
-    apply_cloud_init_data()
-    update_config(load_config())
+    #apply_cloud_init_data()
+    #update_config(load_config())
+    import json
+    print(json.dumps(DEFAULT_CONFIG, indent=2))

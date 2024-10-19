@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://' + window.location.hostname + '/api',
+  //baseURL: 'http://' + window.location.hostname + '/api',
+  baseURL: 'http://127.0.0.1:8000/api',
 })
 
 async function loadConfig() {
