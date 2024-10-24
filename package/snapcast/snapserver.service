@@ -6,7 +6,6 @@ After=network-online.target time-sync.target avahi-daemon.service pipewire.servi
 [Service]
 PermissionsStartOnly=true
 EnvironmentFile=/etc/default/snapserver
-EnvironmentFile=/etc/default/jackd
 ExecStartPre=/usr/bin/install -o snappi -g audio -d /var/lib/snapserver
 ExecStart=pw-jack -s $JACK_SAMPLERATE -p $JACK_PERIODSIZE /usr/bin/snapserver --logging.sink=system $SNAPSERVER_OPTS
 User=snappi

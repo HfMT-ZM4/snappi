@@ -1,1 +1,3 @@
 JACKTRIP_OPTS="-s --receivechannels 8 --sendchannels 1 --udprt"
+JACK_SAMPLERATE=48000
+JACK_PERIODSIZE=512

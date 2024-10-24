@@ -7,6 +7,14 @@ export const usePipeWireStore = defineStore('pipewire', {
     busy: false,
   }),
 
+  getters: {
+    findByPath: (state) => {
+      return (path) => {
+        return state.ports.find(port => port.port_path === path)
+      }
+    },
+  },
+
   actions: {
     async updatePorts() {
       try {

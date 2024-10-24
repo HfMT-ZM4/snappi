@@ -23,7 +23,9 @@ export const useAppStore = defineStore('app', {
     streams: [{
       name: 'Three',
       channels: 3,
+      inputs: [],
     }],
+    routes: [],
     uac2: {
       enable: false,
       name: 'SnappiAudio',
@@ -41,8 +43,20 @@ export const useAppStore = defineStore('app', {
       }
     },
 
+    streamsByName: (state) => {
+      return (name) => {
+        return state.streams.filter(stream => stream.name === name)
+      }
+    },
+
     streamNames: (state) => {
       return state.streams.map(stream => stream.name)
+    },
+
+    routesByTargetName: (state) => {
+      return (name) => {
+        return state.routes.filter(route => route.target === name)
+      }
     },
 
     uniqueStreamName: (state) => {
@@ -122,6 +136,24 @@ export const useAppStore = defineStore('app', {
       }
     },
 
+    addRoute (source, target) {
+      if (this.routes.find(route => {
+        return route.target === target && route.source === source
+      })) return
+      this.routes.push({
+        target: target,
+        source: source,
+      })
+    },
+
+    removeRoute (source, target) {
+      const idx = this.routes.findIndex(route => {
+        return route.target === target && route.source === source
+      })
+      if (idx < 0) return
+      this.routes.splice(idx, 1)
+    },
+
     addStream() {
       this.streams.push({
         name: this.uniqueStreamName,
@@ -147,8 +179,21 @@ export const useAppStore = defineStore('app', {
 
     async loadConfig() {
       try {
-        const data = await API.loadConfig()
-        Object.assign(this, data.data)
+        const result = await API.loadConfig()
+        const data = result.data
+
+        for (const stream of data.streams) {
+          stream.inputs = []
+        }
+        for (const route of data.routes) {
+            const streamName = route.target.split(':::')[0]
+            const stream = data.streams.find(s => s.name === streamName)
+            if (!stream) continue
+            console.log(streamName, stream)
+            stream.inputs.push(route.source)
+        }
+
+        Object.assign(this, data)
         this.saveCleanState()
       }
       catch (error) {

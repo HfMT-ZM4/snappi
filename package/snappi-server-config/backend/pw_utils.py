@@ -20,6 +20,7 @@ def params(obj, name, default=None):
 @dataclass
 class Port:
     id: int
+    port_id: tuple[str, str]
     port_path: str
     name: str
     direction: str
@@ -50,16 +51,18 @@ def get_pw_ports():
         if not raw_node:
             continue
 
-        formats = params(raw_port, 'Format', [])
+        formats = params(raw_port, 'EnumFormat', [])
         if not formats or formats[0].get('mediaType') != 'audio':
             continue
 
         port_name = prop(raw_port, 'port.name', '')
         node_description = prop(raw_node, 'node.description', '')
-        port_path = f"{node_description}:::{port_name}"
+        port_id = (node_description, port_name)
+        port_path = ':::'.join(port_id)
 
         port = Port(
             id=raw_port['id'],
+            port_id=port_id,
             port_path=port_path,
             name=port_name,
             direction=prop(raw_port, 'port.direction'),
@@ -71,9 +74,6 @@ def get_pw_ports():
             monitor=prop(raw_port, 'port.monitor', False),
             link_ids=[]
         )
-
-        if port.monitor or not port.terminal:
-            pass
 
         ports[port.id] = port
 
