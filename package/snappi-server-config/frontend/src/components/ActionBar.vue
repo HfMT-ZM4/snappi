@@ -10,8 +10,7 @@
     </template>
 
     <v-btn
-      :disabled="!store.isDirty"
-      color="primary"
+      :color="store.isDirty ? 'primary' : ''"
       @click="store.saveConfig()"
       v-if="showControls"
     >
@@ -19,8 +18,7 @@
     </v-btn>
 
     <v-btn
-      :disabled="!store.isDirty"
-      color="warning"
+      :color="store.isDirty ? 'warning' : ''"
       class="ml-auto"
       @click="store.resetChanges()"
       v-if="showControls"
@@ -40,7 +38,6 @@ const store = useAppStore()
 const userStore = useUserStore()
 const route = useRoute()
 const showControls = computed(() => {
-  console.log(route.name)
   return route.name != '/snapcast'
 })
 </script>

@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from '@/stores/user'
-import axios from 'axios'
 import API from '@/api'
 
 let _serializedCleanState = ''
@@ -25,7 +24,6 @@ export const useAppStore = defineStore('app', {
       channels: 3,
       inputs: [],
     }],
-    routes: [],
     uac2: {
       enable: false,
       name: 'SnappiAudio',
@@ -37,6 +35,12 @@ export const useAppStore = defineStore('app', {
   }),
 
   getters: {
+    streamByIdx: (state) => {
+      return (idx) => {
+        return state.streams[idx]
+      }
+    },
+
     streamByName: (state) => {
       return (name) => {
         return state.streams.find(stream => stream.name === name)
@@ -53,12 +57,6 @@ export const useAppStore = defineStore('app', {
       return state.streams.map(stream => stream.name)
     },
 
-    routesByTargetName: (state) => {
-      return (name) => {
-        return state.routes.filter(route => route.target === name)
-      }
-    },
-
     uniqueStreamName: (state) => {
       for (let i=state.streams.length + 1; i < 1000; i++) {
         const name = `Stream ${i}`
@@ -71,6 +69,17 @@ export const useAppStore = defineStore('app', {
 
     isDirty: (state) => {
       return _serializedCleanState != JSON.stringify(state.$state)
+    },
+
+    streamChannelInputs: (state) => {
+      return (idx, channelNumber) => {
+        const stream = state.streamByIdx(idx)
+        const channelName = `input_${channelNumber-1}`
+        console.log('getting ', idx, channelNumber)
+        return stream.inputs.filter(input => {
+          return input.channel === channelName
+        }).sort((a, b) => a.port - b.port)
+      }
     },
 
     configErrors: (state) => {
@@ -125,6 +134,7 @@ export const useAppStore = defineStore('app', {
          this.streams.push({
             name: 'Mono-' + (i+1),
             channels: 1,
+            inputs: [],
          })
       }
 
@@ -132,32 +142,35 @@ export const useAppStore = defineStore('app', {
          this.streams.push({
             name: 'Stereo-' + (i+1),
             channels: 2,
+            inputs: [],
          })
       }
     },
 
-    addRoute (source, target) {
-      if (this.routes.find(route => {
-        return route.target === target && route.source === source
+    addStreamChannelInput (idx, channelNumber, port) {
+      const stream = this.streamByIdx(idx)
+      const channelName = `input_${channelNumber-1}`
+      if (stream.inputs.find(input => {
+        return input.channel === channelName && input.port === port
       })) return
-      this.routes.push({
-        target: target,
-        source: source,
-      })
+      stream.inputs.push({channel: channelName, port: port})
     },
 
-    removeRoute (source, target) {
-      const idx = this.routes.findIndex(route => {
-        return route.target === target && route.source === source
+    removeStreamChannelInput (idx, channelNumber, port) {
+      const stream = this.streamByIdx(idx)
+      const channelName = `input_${channelNumber-1}`
+      const _idx = stream.inputs.findIndex(input => {
+        return input.channel === channelName && input.port === port
       })
-      if (idx < 0) return
-      this.routes.splice(idx, 1)
+      if (_idx < 0) return
+      stream.inputs.splice(_idx, 1)
     },
 
     addStream() {
       this.streams.push({
         name: this.uniqueStreamName,
         channels: 1,
+        inputs: [],
       })
     },
 
@@ -174,31 +187,18 @@ export const useAppStore = defineStore('app', {
     },
 
     resetChanges() {
-      Object.assign(this, JSON.parse(_serializedCleanState))
+      this.$patch(JSON.parse(_serializedCleanState))
     },
 
     async loadConfig() {
       try {
         const result = await API.loadConfig()
         const data = result.data
-
-        for (const stream of data.streams) {
-          stream.inputs = []
-        }
-        for (const route of data.routes) {
-            const streamName = route.target.split(':::')[0]
-            const stream = data.streams.find(s => s.name === streamName)
-            if (!stream) continue
-            console.log(streamName, stream)
-            stream.inputs.push(route.source)
-        }
-
-        Object.assign(this, data)
+        this.$patch(data)
         this.saveCleanState()
       }
       catch (error) {
         alert(error)
-        console.log(error)
         this.saveCleanState()
       }
     },

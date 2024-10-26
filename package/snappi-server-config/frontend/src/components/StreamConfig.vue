@@ -28,16 +28,16 @@
           <h4>Channel {{chnum}} Inputs</h4>
           <v-list>
             <v-list-item
-              v-for="route in appStore.routesByTargetName(targetName(stream, chnum))"
-              :key="`${idx}-${chnum}-${route.source}`"
+              v-for="input in appStore.streamChannelInputs(idx, chnum)"
+              :key="`${idx}-${chnum}-${input.port}`"
               >
               <v-btn
                 icon="mdi-delete"
                 variant="plain"
                 size="small"
-                @click="appStore.removeRoute(route.source, targetName(stream, chnum))"
+                @click="appStore.removeStreamChannelInput(idx, chnum, input.port)"
                 />
-                <span :class="{'text-disabled': !portAvailable(route.source)}">{{ route.source.split(':::').join(' - ') }}</span>
+                <span :class="{'text-disabled': !portAvailable(input.port)}">{{ input.port.split(':::').join(' - ') }}</span>
             </v-list-item>
             <v-list-item>
               <v-select
@@ -47,7 +47,7 @@
                   density="compact"
                   variant="underlined"
                   persistent-placeholder
-                  @update:modelValue="appStore.addRoute($event, targetName(stream, chnum))"
+                  @update:modelValue="appStore.addStreamChannelInput(idx, chnum, $event)"
                   hide-details
                   />
             </v-list-item>
@@ -69,7 +69,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, toRef } from 'vue'
 import { VNumberInput } from 'vuetify/labs/VNumberInput'
 
 import { useAppStore } from '@/stores/app'
@@ -77,17 +77,11 @@ import { usePipeWireStore } from '@/stores/pipewire'
 
 const props = defineProps(['idx'])
 const appStore = useAppStore()
-const stream = appStore.streams[props.idx]
-
 const pwStore = usePipeWireStore()
-
-function targetName(stream, channel) {
-  return `${stream.name}:::input_${channel-1}`
-}
 
 function isUniqueStreamName(name) {
   const streams = appStore.streamsByName(name)
-  if ((streams.length > 1) || (streams.length > 0 && streams[0] != stream)) {
+  if ((streams.length > 1) || (streams.length > 0 && streams[0] != stream.value)) {
     return 'Please choose a unique name for this stream'
   }
   return true
@@ -95,7 +89,7 @@ function isUniqueStreamName(name) {
 
 function setStreamName(name) {
   if (isUniqueStreamName(name) !== true) return
-  stream.name = name
+  stream.value.name = name
 }
 
 const portItems = computed(() => {
@@ -111,6 +105,10 @@ const portAvailable = computed(() => {
   return (path) => {
     return pwStore.findByPath(path) ? true : false
   }
+})
+
+const stream = computed(() => {
+  return appStore.streams[props.idx]
 })
 </script>
 

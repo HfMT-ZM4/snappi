@@ -36,9 +36,23 @@ class Port:
         return f'{self.node_description}:{self.name} ({self.direction})'
 
 
+def get_pw_dump_output(retries=5):
+    while True:
+        try:
+            result = subprocess.check_output('/usr/bin/pw-dump')
+            return json.loads(result)
+        except Exception:
+            retries -= 1
+            if retries <= 0:
+                return
+
+
+
 def get_pw_ports():
-    result = subprocess.check_output('/usr/bin/pw-dump')
-    raw = json.loads(result)
+    raw = get_pw_dump_output()
+    if raw is None:
+        return {}
+
     objs = {obj['id']: obj for obj in raw}
 
     ports = {}
@@ -93,14 +107,13 @@ def get_pw_ports():
     return ports
 
 
-async def pw_monitor(ws_queue: asyncio.Queue):
+async def pw_monitor(pw_types, queue):
     """Monitor PipeWire for changes"""
     changed_types = set()
     first_run = False
 
     interesting_types = [
-        'PipeWire:Interface:Link',
-        'PipeWire:Interface:Port',
+        f'PipeWire:Interface:{pw_type}' for pw_type in pw_types
     ]
 
     object_types = {}
@@ -140,36 +153,27 @@ async def pw_monitor(ws_queue: asyncio.Queue):
 
         except asyncio.TimeoutError:
             if changed_types and not first_run:
-                await ws_queue.put(f'PipeWire:{",".join(changed_types)}')
+                await queue.put(f'PipeWire:{",".join(changed_types)}')
             changed_types = set()
             first_run = False
 
 
-def _find_port_id(ports, node_description, port_name):
-    for port in ports.values():
-        if port.node_description != node_description:
-            continue
-        if port.name != port_name:
-            continue
-        return port.id
-
-
-def _find_port_by_path(ports, port_path):
+def _find_port_id_by_path(ports, port_path):
     for port in ports.values():
         if port.port_path == port_path:
-            return port
+            return port.id
 
 
-def setup_pw_links(links):
+def setup_pw_links(links: list[tuple[str, str]]):
     """
-    `links` is a list of tupes (source port_path, destination port_path)
+    `links` is a list of tuples (source port_path, destination port_path)
     """
     # turn "soft" link descriptions into actual port ids
     ports = get_pw_ports()
     port_links = defaultdict(list)
     for src_path, dst_path in links:
-        src_port_id = _find_port_by_path(ports, src_path)
-        dst_port_id = _find_port_by_path(ports, dst_path)
+        src_port_id = _find_port_id_by_path(ports, src_path)
+        dst_port_id = _find_port_id_by_path(ports, dst_path)
         if not src_port_id or not dst_port_id:
             continue
         port_links[src_port_id].append(dst_port_id)

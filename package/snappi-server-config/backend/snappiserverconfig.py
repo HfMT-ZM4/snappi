@@ -1,9 +1,11 @@
-import json
+import sys
+import uvicorn
+import asyncio
 import hashlib
-import re
 import subprocess
+from queue import Empty
 from pathlib import Path
-from typing import List, Annotated
+from typing import List, Annotated, Any
 
 import yaml
 
@@ -16,6 +18,8 @@ from fastapi.exception_handlers import http_exception_handler
 from pydantic import BaseModel
 
 import pw_utils
+
+queue = asyncio.Queue()
 
 
 ETC_DIR = Path('/etc')
@@ -130,18 +134,18 @@ DEFAULT_CONFIG = {
     },
     'routes': DEFAULT_ROUTES,
     'streams': [
-        {'name': 'Mono-1',   'channels': 1},
-        {'name': 'Mono-2',   'channels': 1},
-        {'name': 'Mono-3',   'channels': 1},
-        {'name': 'Mono-4',   'channels': 1},
-        {'name': 'Mono-5',   'channels': 1},
-        {'name': 'Mono-6',   'channels': 1},
-        {'name': 'Mono-7',   'channels': 1},
-        {'name': 'Mono-8',   'channels': 1},
-        {'name': 'Stereo-1', 'channels': 2},
-        {'name': 'Stereo-2', 'channels': 2},
-        {'name': 'Stereo-3', 'channels': 2},
-        {'name': 'Stereo-4', 'channels': 2},
+        {'name': 'Mono-1',   'channels': 1, 'inputs': []},
+        {'name': 'Mono-2',   'channels': 1, 'inputs': []},
+        {'name': 'Mono-3',   'channels': 1, 'inputs': []},
+        {'name': 'Mono-4',   'channels': 1, 'inputs': []},
+        {'name': 'Mono-5',   'channels': 1, 'inputs': []},
+        {'name': 'Mono-6',   'channels': 1, 'inputs': []},
+        {'name': 'Mono-7',   'channels': 1, 'inputs': []},
+        {'name': 'Mono-8',   'channels': 1, 'inputs': []},
+        {'name': 'Stereo-1', 'channels': 2, 'inputs': []},
+        {'name': 'Stereo-2', 'channels': 2, 'inputs': []},
+        {'name': 'Stereo-3', 'channels': 2, 'inputs': []},
+        {'name': 'Stereo-4', 'channels': 2, 'inputs': []},
     ],
     'uac2': {
         'enable': True,
@@ -153,18 +157,15 @@ DEFAULT_CONFIG = {
 }
 
 
+class StreamInputPort(BaseModel):
+    port: str
+    channel: str
+
+
 class StreamConfig(BaseModel):
     name: str
     channels: int
-
-
-class Route(BaseModel):
-    source: str
-    target: str
-
-
-class Routes(BaseModel):
-    routes: List[Route]
+    inputs: List[StreamInputPort] = []
 
 
 class WifiConfig(BaseModel):
@@ -191,8 +192,15 @@ class Config(BaseModel):
     latency: int
     wifi: WifiConfig
     streams: List[StreamConfig]
-    routes: List[Route]
     uac2: UAC2Config | None
+
+    def model_post_init(self, __context: Any) -> None:
+        """Clean and sort the stream inputs"""
+        for stream in self.streams:
+            valid_channels = [f'input_{idx}' for idx in range(stream.channels)]
+            valid_inputs = [inp for inp in stream.inputs
+                            if inp.channel in valid_channels]
+            stream.inputs = sorted(valid_inputs, key=lambda x: (x.channel, x.port))
 
 
 def load_config() -> Config:
@@ -201,9 +209,7 @@ def load_config() -> Config:
 
 
 def store_config(config: Config):
-    config_dict = config.model_dump()
-    config_dict['routes'].sort(key=lambda r: (r['source'], r['target']))
-    value = json.dumps(config_dict, indent=2)
+    value = config.model_dump_json(indent=2)
     return write_file_if_changed(SNAPPI_CONFIG_FILE, value)
 
 
@@ -407,7 +413,7 @@ def write_file_if_changed(filename, value, mode=None):
     return True
 
 
-def update_config(config: Config) -> List[str]:
+async def update_config(config: Config) -> List[str]:
     required_restarts = set()
 
     for method, services in (
@@ -422,10 +428,18 @@ def update_config(config: Config) -> List[str]:
 
     restart_services(list(required_restarts))
 
+    await queue.put('from fastapi')
+
     if 'system-ask' in required_restarts:
         return ['system']
     else:
         return []
+
+
+def update_pw_links(config: Config):
+    links = pw_links_from_config(config)
+    pw_utils.setup_pw_links(links)
+
 
 
 def read_yaml(filename):
@@ -487,6 +501,15 @@ def restart_services(services: List[str]):
         systemctl('restart', 'snapserver')
 
 
+def pw_links_from_config(config: Config):
+    links = []
+    for stream in config.streams:
+        for entry in stream.inputs:
+            source_port = f'{stream.name}:::{entry.channel}'
+            links.append((entry.port, source_port))
+    return links
+
+
 def get_service_status(services: List[str]):
     cmd = [SYSTEMCTL_CMD, 'is-active', *services]
     proc = subprocess.run(cmd, capture_output=True)
@@ -527,8 +550,10 @@ async def get_config():
 
 @app.get('/api/ports')
 async def get_output_ports():
-    return [port for port in pw_utils.get_pw_ports().values()
-            if port.terminal and port.direction == 'out']
+    print('calling get_ports')
+    ports = [port for port in pw_utils.get_pw_ports().values()
+             if port.terminal and port.direction == 'out']
+    return sorted(ports, key=lambda p: p.port_path)
 
 
 @app.post('/api/config')
@@ -546,7 +571,7 @@ async def post_restart(services: List[str]):
 @app.get('/api/status')
 async def get_status():
     return get_service_status([
-        'jackd',
+        'pipewire',
         'jacktrip',
         'snapserver',
     ])
@@ -567,7 +592,40 @@ async def custom_404_handler(request, exc):
     return await http_exception_handler(request, exc)
 
 
+def server():
+    loop = asyncio.new_event_loop()
+    config = uvicorn.Config(app=app)
+    server = uvicorn.Server(config)
+    loop.create_task(server.serve())
+    loop.run_forever()
+
+
+async def linker():
+    while True:
+        msg = await queue.get()
+        config = load_config()
+        update_pw_links(config)
+
+
+def main():
+    loop = asyncio.new_event_loop()
+    config = uvicorn.Config(app=app)
+    server = uvicorn.Server(config)
+    loop.create_task(server.serve())
+    loop.create_task(pw_utils.pw_monitor(['Port'], queue))
+    loop.create_task(linker())
+    loop.run_forever()
+
+
 if __name__ == '__main__':
-    #apply_cloud_init_data()
-    #update_config(load_config())
-    store_config(Config.model_validate(DEFAULT_CONFIG))
+    try:
+        cmd = sys.argv[1]
+    except Exception:
+        cmd = 'update'
+
+    if cmd == 'serve':
+        main()
+    else:
+        #apply_cloud_init_data()
+        #update_config(load_config())
+        store_config(Config.model_validate(DEFAULT_CONFIG))
