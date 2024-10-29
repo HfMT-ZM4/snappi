@@ -1,0 +1,19 @@
+[project]
+name = "snappi-server-config"
+version = "1.0.0"
+description = "API and tools for Snappi server configuration"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi-slim",
+    "uvicorn",
+    "pydantic",
+    "pyyaml",
+    "websockets"
+]
+
+[project.scripts]
+snappi_server_config = "snappi_server_config.main:main"
+
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"

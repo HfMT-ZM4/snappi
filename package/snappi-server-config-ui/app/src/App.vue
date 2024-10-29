@@ -23,4 +23,5 @@ appStore.$subscribe((mutation, state) => {
 
 const pwStore = usePipeWireStore()
 pwStore.updatePorts()
+pwStore.startMonitor()
 </script>

@@ -5,6 +5,7 @@ config BR2_PACKAGE_SNAPPI_SERVER_CONFIG
     select BR2_PACKAGE_PYTHON_UVICORN
     select BR2_PACKAGE_PYTHON_FASTAPI
     select BR2_PACKAGE_PYTHON_PYYAML
+    select BR2_PACKAGE_PYTHON_WEBSOCKETS
         help
-	  Web-Interface and tools to configure the Snappi Server
+	  API and tools to configure the Snappi Server
 

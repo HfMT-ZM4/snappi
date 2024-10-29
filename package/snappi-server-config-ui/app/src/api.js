@@ -1,8 +1,11 @@
 import axios from 'axios'
 
+const host = '127.0.0.1'
+const port = import.meta.env.MODE === 'development' ? 8000 : 80
+
 const api = axios.create({
   //baseURL: 'http://' + window.location.hostname + '/api',
-  baseURL: 'http://127.0.0.1:8000/api',
+  baseURL: `http://${host}:${port}/api`,
 })
 
 async function loadConfig() {
@@ -37,6 +40,10 @@ async function getLogs(services, numLines) {
     })
 }
 
+function createWebSocket() {
+    return new WebSocket(`ws://${host}:${port}/api/ws`)
+}
+
 export default {
   loadConfig,
   saveConfig,
@@ -44,4 +51,5 @@ export default {
   getServiceStatus,
   getLogs,
   getPorts,
+  createWebSocket,
 }

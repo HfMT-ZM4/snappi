@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pa-5" wrap>
+  <v-container class="pa-5" fluid>
     <h2>Audio Streams</h2>
 
     <StreamConfig

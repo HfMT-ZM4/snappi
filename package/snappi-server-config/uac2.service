@@ -1,6 +1,5 @@
 [Unit]
 Description=Snappi UAC2 Service
-Before=snapserver.service snappi-server-config-startup.service
 
 [Service]
 Type=oneshot
