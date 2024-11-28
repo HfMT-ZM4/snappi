@@ -131,6 +131,9 @@ class ServerConfig:
         if network_config_path.exists():
             network_config_path.unlink()
 
+        add_ssh_keys(ci_user)
+
+
     def get_pipewire_links(self) -> list[tuple[str, str]]:
         links = []
         for stream in self.config.streams:
@@ -348,3 +351,24 @@ def read_yaml(filename):
 
 def striplines(text: str):
     return '\n'.join(line.strip() for line in text.splitlines())
+
+
+def add_ssh_keys(conf):
+    keys = []
+
+    for user in conf.get('users', []):
+        for key in user.get('ssh_authorized_keys', []):
+            keys.append(key)
+
+    if not keys:
+        return
+
+    ssh_dir = Path('/root/.ssh')
+    if not ssh_dir.exists():
+        ssh_dir.mkdir(mode=0o700)
+
+    pubkeys = '\n'.join(keys)
+
+    authfile = ssh_dir / 'authorized_keys'
+    authfile.write_text(pubkeys)
+    authfile.chmod(0o600)
