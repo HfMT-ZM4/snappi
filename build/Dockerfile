@@ -47,9 +47,17 @@ RUN useradd --user-group --create-home --home-dir /build --no-log-init --shell /
 RUN mkdir /buildroot
 RUN chown builder:builder /buildroot
 
+RUN mkdir /pipewire
+RUN chown builder:builder /pipewire
+
+RUN mkdir /wireplumber
+RUN chown builder:builder /wireplumber
+
 USER builder
 
 RUN git clone git://git.buildroot.net/buildroot --depth=1 --branch=2024.08 /buildroot
+RUN git clone https://gitlab.freedesktop.org/pipewire/pipewire.git --depth=1 --branch=1.2.6 /pipewire
+RUN git clone https://gitlab.freedesktop.org/pipewire/wireplumber.git --depth=1 --branch=0.5.6 /wireplumber
 
 WORKDIR /build
 
