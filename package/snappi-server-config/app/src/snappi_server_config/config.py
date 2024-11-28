@@ -292,6 +292,7 @@ def generate_wifi_client_config(config: Config):
 
 def update_jacktrip_config(config: Config):
     value = striplines(f'''
+        JACKTRIP_OPTS="-s --receivechannels {config.channels} --sendchannels 1 --nojackportsconnect --udprt"
         JACKTRIP_OPTS="-s --receivechannels {config.channels} --sendchannels 1 --udprt"
         JACK_PERIODSIZE={config.periodsize}
         JACK_SAMPLERATE={config.samplerate}
