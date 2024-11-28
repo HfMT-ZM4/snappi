@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 import subprocess
 
@@ -6,6 +7,7 @@ from .settings import settings
 
 def systemctl(*args):
     cmd = [settings.bin_path / 'systemctl', *args]
+    logging.debug(cmd)
     return subprocess.run(cmd)
 
 
@@ -13,6 +15,10 @@ def restart_services(services: list[str]):
     if 'system' in services:
         systemctl('reboot')
         return
+
+    if 'pipewire' in services:
+        systemctl('restart', 'pipewire')
+        systemctl('restart', 'wireplumber')
 
     if 'uac2' in services:
         systemctl('restart', 'uac2')

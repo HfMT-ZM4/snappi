@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 import uvicorn
 import asyncio
+import logging
 from typing import List, Annotated
 
 from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
@@ -117,6 +118,8 @@ async def update_pipewire_links():
 
 
 async def pipewire_changed():
+    logging.debug('pipewire_changed!')
+    await pipewire.refresh_ports()
     await websocket_manager.broadcast('pipewire_changed')
     await update_pipewire_links()
 

@@ -88,9 +88,9 @@ class ServerConfig:
         for method, services in (
             (update_hostname, ['system']),
             (update_wifi_config, ['system']),
-            (update_jacktrip_config, ['jacktrip']),
+            (update_jacktrip_config, ['jacktrip', 'pipewire']),
             (update_uac2_config, ['uac2']),
-            (update_snapserver_config, ['snapserver']),
+            (update_snapserver_config, ['snapserver', 'pipewire']),
         ):
             if method(self.config):
                 required_restarts.update(services)
@@ -155,6 +155,8 @@ def _snapserver_source_url(source, **kwargs):
 def update_snapserver_config(config: Config):
     value = striplines(f'''
         SNAPSERVER_OPTS="-c /etc/snapserver.conf --server.datadir=/var/lib/snapserver"
+        JACK_PERIODSIZE={config.periodsize}
+        JACK_SAMPLERATE={config.samplerate}
         PIPEWIRE_LATENCY={config.periodsize}/{config.samplerate}
     ''')
     env_changed = write_file_if_changed(settings.root_path / SNAPSERVER_ENV_FILE, value)
@@ -180,7 +182,7 @@ def update_snapserver_config(config: Config):
         doc_root = /usr/share/snapserver/snapweb
 
         [logging]
-        filter = *:trace
+        filter = *:info
 
         [stream]
         codec = pcm
@@ -293,6 +295,8 @@ def generate_wifi_client_config(config: Config):
 def update_jacktrip_config(config: Config):
     value = striplines(f'''
         JACKTRIP_OPTS="-s --receivechannels {config.channels} --sendchannels 1 --nojackportsconnect --udprt"
+        JACK_PERIODSIZE={config.periodsize}
+        JACK_SAMPLERATE={config.samplerate}
         PIPEWIRE_LATENCY={config.periodsize}/{config.samplerate}
     ''')
     return write_file_if_changed(settings.root_path / JACKTRIP_ENV_FILE, value)

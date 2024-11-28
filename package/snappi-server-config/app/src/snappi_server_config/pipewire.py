@@ -2,6 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 import asyncio
+import logging
 import json
 import subprocess
 
@@ -52,7 +53,6 @@ class Pipewire:
         """
         `links` is a list of tuples (source port_path, destination port_path)
         """
-        await self.refresh_ports()
         # turn "soft" link descriptions into actual port ids
         port_links = defaultdict(list)
         for src_path, dst_path in links:
@@ -83,7 +83,7 @@ class Pipewire:
                 if port:
                     port.link_ids.remove(dst_id)
             except subprocess.CalledProcessError:
-                print(f'Failed to disconnect {src_id} {dst_id}')
+                logging.error(f'Failed to disconnect {src_id} {dst_id}')
 
         for src_id, dst_id in to_connect:
             src_port = self.ports_by_id[src_id]
@@ -94,7 +94,7 @@ class Pipewire:
                 if port:
                     port.link_ids.add(dst_id)
             except subprocess.CalledProcessError:
-                print(f'Failed to connect {src_id} {dst_id}')
+                logging.error(f'Failed to connect {src_id} {dst_id}')
 
 
     async def _get_ports(self):
@@ -104,6 +104,7 @@ class Pipewire:
         stdin, _ = await proc.communicate()
         raw = json_loads_all_arrays(stdin.decode('utf-8'))
         if not raw:
+            logging.error('get_ports returned empty result!')
             return {}
 
         objs = {obj['id']: obj for obj in raw}
@@ -165,7 +166,7 @@ class Pipewire:
 
         return pw_ports
 
-    async def monitor(self, callback, timeout=2.0):
+    async def _monitor(self, callback, timeout=2.0):
         """Monitor PipeWire for changed ports"""
         pw_link_cmd = settings.bin_path / 'pw-link'
         proc = await asyncio.create_subprocess_shell(
@@ -186,6 +187,16 @@ class Pipewire:
                 handle.cancel()
 
             handle = loop.call_later(timeout, lambda: asyncio.create_task(callback()))
+
+        logging.error('Monitor stopped!!')
+
+    async def monitor(self, callback, timeout=2.0):
+        while True:
+            try:
+                await self._monitor(callback, timeout)
+            except Exception:
+                logging.error('Monitor stopped, retrying in 2 seconds...')
+            await asyncio.sleep(2)
 
 
 def json_loads_all_arrays(raw):
