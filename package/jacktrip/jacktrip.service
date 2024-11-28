@@ -14,5 +14,5 @@ LimitRTPRIO=infinity
 LimitMEMLOCK=infinity
 LimitRTTIME=infinity
 EnvironmentFile=-/etc/default/jacktrip
-ExecStart=pw-jack -s $JACK_SAMPLERATE -p $JACK_PERIODSIZE /usr/bin/jacktrip $JACKTRIP_OPTS
+ExecStart=pw-jack /usr/bin/jacktrip $JACKTRIP_OPTS
 Restart=always
