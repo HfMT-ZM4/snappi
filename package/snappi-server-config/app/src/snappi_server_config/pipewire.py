@@ -6,6 +6,7 @@ import json
 import subprocess
 
 from .settings import settings
+from .utils import check_call
 
 
 @dataclass
@@ -14,6 +15,7 @@ class Port:
     port_path: str
     name: str
     direction: str
+    node_id: int
     node_name: str
     node_description: str
     physical: bool
@@ -36,12 +38,10 @@ class Pipewire:
             if port.terminal and port.direction == 'out'
         ]
 
-    def get_port_id_by_path(self, path):
-        port = self.ports_by_path.get(path)
-        return port.id if port else None
+    def get_port_by_path(self, path):
+        return self.ports_by_path.get(path)
 
     async def refresh_ports(self):
-        print('refresh ports')
         self.ports_by_id = await self._get_ports()
         self.ports_by_path = {
             port.port_path : port
@@ -52,15 +52,15 @@ class Pipewire:
         """
         `links` is a list of tuples (source port_path, destination port_path)
         """
-        print('setup links', links)
+        await self.refresh_ports()
         # turn "soft" link descriptions into actual port ids
         port_links = defaultdict(list)
         for src_path, dst_path in links:
-            src_port_id = self.get_port_id_by_path(src_path)
-            dst_port_id = self.get_port_id_by_path(dst_path)
-            if not src_port_id or not dst_port_id:
+            src_port = self.get_port_by_path(src_path)
+            dst_port = self.get_port_by_path(dst_path)
+            if not src_port or not dst_port:
                 continue
-            port_links[src_port_id].append(dst_port_id)
+            port_links[src_port.id].append(dst_port.id)
 
         # go through all ports and note which ports to connect and which to disconnect
         to_connect = []
@@ -73,9 +73,12 @@ class Pipewire:
             for dst_id in wanted_links - current_links:
                 to_connect.append([port.id, dst_id])
 
+        pw_link_cmd = settings.bin_path / 'pw-link'
+        pw_cli_cmd = settings.bin_path / 'pw-cli'
+
         for src_id, dst_id in to_disconnect:
             try:
-                subprocess.check_call([settings.bin_path / 'pw-link', '-d', str(src_id), str(dst_id)])
+                await check_call(f'{pw_link_cmd} -d {src_id} {dst_id}')
                 port = self.ports_by_id.get(src_id)
                 if port:
                     port.link_ids.remove(dst_id)
@@ -83,8 +86,10 @@ class Pipewire:
                 print(f'Failed to disconnect {src_id} {dst_id}')
 
         for src_id, dst_id in to_connect:
+            src_port = self.ports_by_id[src_id]
+            dst_port = self.ports_by_id[dst_id]
             try:
-                subprocess.check_call([settings.bin_path / 'pw-link', str(src_id), str(dst_id)])
+                await check_call(f'{pw_cli_cmd} cl {src_port.node_id} {src_port.id} {dst_port.node_id} {dst_port.id} object.linger=true')
                 port = self.ports_by_id.get(src_id)
                 if port:
                     port.link_ids.add(dst_id)
@@ -117,7 +122,8 @@ class Pipewire:
             if not formats or formats[0].get('mediaType') != 'audio':
                 continue
 
-            node = objs.get(port_props.get('node.id'))
+            node_id = port_props.get('node.id')
+            node = objs.get(node_id)
             if not node:
                 continue
             node_info = node.get('info', {})
@@ -131,6 +137,7 @@ class Pipewire:
                 id=port_id,
                 port_path=port_path,
                 name=port_name,
+                node_id=node_id,
                 node_name=node_props.get('node.name', ''),
                 node_description=node_description,
                 direction=port_props.get('port.direction', ''),
@@ -158,64 +165,27 @@ class Pipewire:
 
         return pw_ports
 
-    async def monitor(self, callback=None):
-        """Monitor PipeWire for changes"""
-        changed_types = set()
-        first_run = True
-
-        interesting_types = [
-            'PipeWire:Interface:Port',
-        ]
-
-        object_types = {}
-        event = None
-        obj_id = None
-        obj_type = None
-
-        pw_mon_cmd = settings.bin_path / 'pw-mon'
+    async def monitor(self, callback, timeout=2.0):
+        """Monitor PipeWire for changed ports"""
+        pw_link_cmd = settings.bin_path / 'pw-link'
         proc = await asyncio.create_subprocess_shell(
-            f'{pw_mon_cmd} --no-colors --print-separator --hide-params --hide-props',
+            f'{pw_link_cmd} --input --output --id --monitor',
             stdout=asyncio.subprocess.PIPE,
         )
         if proc.stdout is None:
-            raise RuntimeError('Unable to run pw-mon')
+            raise RuntimeError('Unable to run pw-link monitor')
 
-        while proc.returncode is None:
-            try:
-                line = await asyncio.wait_for(proc.stdout.readline(), timeout=1.0)
-                line = line.decode('utf-8').strip()
+        handle = None
+        loop = asyncio.get_event_loop()
 
-                if line == '':
-                    if event == 'added:' and obj_type and obj_id:
-                        object_types[obj_id] = obj_type
-                    elif event == 'removed:' and obj_id:
-                        obj_type = object_types.pop(obj_id, None)
-                    elif event == 'changed:':
-                        obj_type = None  # prevent handling of change events
+        # we assume that any output by the pw-link monitor is
+        # an interesting change. But we wait for `timeout`
+        # to pass before executing the callback
+        async for line in proc.stdout:
+            if handle:
+                handle.cancel()
 
-                    if obj_type in interesting_types:
-                        changed_types.add(obj_type)
-
-                    event = None
-                    obj_id = None
-                    obj_type = None
-                elif event is None:
-                    event = line
-                elif obj_id is None and line.startswith('id: '):
-                    obj_id = line.split(' ')[1]
-                elif obj_type is None and line.startswith('type: '):
-                    obj_type = line.split(' ')[1]
-
-            except asyncio.TimeoutError:
-                if changed_types and not first_run:
-                    await self.refresh_ports()
-                    if callback:
-                        try:
-                            await callback()
-                        except Exception as e:
-                            print('Error in callback!', e)
-                changed_types = set()
-                first_run = False
+            handle = loop.call_later(timeout, lambda: asyncio.create_task(callback()))
 
 
 def json_loads_all_arrays(raw):
