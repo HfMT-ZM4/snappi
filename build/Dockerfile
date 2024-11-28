@@ -56,7 +56,7 @@ RUN chown builder:builder /wireplumber
 USER builder
 
 RUN git clone git://git.buildroot.net/buildroot --depth=1 --branch=2024.08 /buildroot
-RUN git clone https://gitlab.freedesktop.org/pipewire/pipewire.git --depth=1 --branch=1.2.6 /pipewire
+RUN git clone https://gitlab.freedesktop.org/pipewire/pipewire.git --depth=1 --branch=1.2.7 /pipewire
 RUN git clone https://gitlab.freedesktop.org/pipewire/wireplumber.git --depth=1 --branch=0.5.6 /wireplumber
 
 WORKDIR /build
