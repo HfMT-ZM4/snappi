@@ -125,7 +125,8 @@ def serve():
     app.mount('/', StaticFiles(directory=settings.static_path, html=True), name='static')
 
     loop = asyncio.new_event_loop()
-    server = uvicorn.Server(uvicorn.Config(app=app, host=settings.host, port=settings.port))
+    asyncio.set_event_loop(loop)
+    server = uvicorn.Server(uvicorn.Config(app=app, host=settings.host, port=settings.port, workers=10))
     loop.create_task(server.serve())
     loop.create_task(pipewire.monitor(callback=pipewire_changed))
     loop.run_forever()
