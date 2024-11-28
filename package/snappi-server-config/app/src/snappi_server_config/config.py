@@ -154,8 +154,7 @@ def _snapserver_source_url(source, **kwargs):
 def update_snapserver_config(config: Config):
     value = striplines(f'''
         SNAPSERVER_OPTS="-c /etc/snapserver.conf --server.datadir=/var/lib/snapserver"
-        JACK_PERIODSIZE={config.periodsize}
-        JACK_SAMPLERATE={config.samplerate}
+        PIPEWIRE_LATENCY={config.periodsize}/{config.samplerate}
     ''')
     env_changed = write_file_if_changed(settings.root_path / SNAPSERVER_ENV_FILE, value)
 
@@ -293,9 +292,7 @@ def generate_wifi_client_config(config: Config):
 def update_jacktrip_config(config: Config):
     value = striplines(f'''
         JACKTRIP_OPTS="-s --receivechannels {config.channels} --sendchannels 1 --nojackportsconnect --udprt"
-        JACKTRIP_OPTS="-s --receivechannels {config.channels} --sendchannels 1 --udprt"
-        JACK_PERIODSIZE={config.periodsize}
-        JACK_SAMPLERATE={config.samplerate}
+        PIPEWIRE_LATENCY={config.periodsize}/{config.samplerate}
     ''')
     return write_file_if_changed(settings.root_path / JACKTRIP_ENV_FILE, value)
 
