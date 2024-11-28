@@ -1,5 +1,6 @@
 from pathlib import Path
 from argparse import ArgumentParser
+import logging
 
 from .settings import settings
 
