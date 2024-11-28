@@ -1,7 +1,12 @@
 import axios from 'axios'
 
-const host = '127.0.0.1'
-const port = import.meta.env.MODE === 'development' ? 8000 : 80
+let host = window.location.hostname
+let port = 80
+
+if (import.meta.env.MODE === 'development') {
+  host = '127.0.0.1'
+  port = 8000
+}
 
 const api = axios.create({
   //baseURL: 'http://' + window.location.hostname + '/api',
