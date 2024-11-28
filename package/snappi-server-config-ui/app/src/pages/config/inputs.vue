@@ -8,6 +8,9 @@
         The Virtual USB Audio input will enable the Snappi server to
         act as a "virtual" USB soundcard when connected to a computer via
         the USB-C port of the Raspberry Pi.
+
+        <p>Uses a samplerate of <b>{{store.samplerate}} Hz</b> and <b>{{store.bits}} bits</b>
+        (as configured in the <router-link to="/config/system">System Settings</router-link>).</p>
       </v-card-text>
 
       <v-card-text>
@@ -27,22 +30,12 @@
           label="Number of input channels"
           required
           v-model="store.uac2.channels"
-          hint="The number of channels for the virtual audio device. Maximum is 27 channels at 44100Hz."
+          hint="The number of channels for the virtual audio device, maximum is 27 channels."
+          :min="1"
+          :max="27"
           ></v-number-input>
-
-        <v-select
-          label="Sample-rate"
-          :items="[44100, 48000]"
-          suffix="Hz"
-          v-model="store.uac2.samplerate"
-          ></v-select>
-
-        <v-select
-          label="Bitrate"
-          :items="[16, 24, 32]"
-          v-model="store.uac2.bits"
-          ></v-select>
       </v-card-text>
+
     </v-card>
 
     <v-card class="mb-5">

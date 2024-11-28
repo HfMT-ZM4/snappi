@@ -98,8 +98,6 @@ DEFAULT_CONFIG = {
         'enable': True,
         'name': 'SnappiAudio',
         'channels': 2,
-        'samplerate': 44100,
-        'bits': 16,
     },
 }
 

@@ -15,9 +15,6 @@
   "uac2": {
     "enable": true,
     "name": "SnappiAudio",
-    "serial": "1",
     "channels": 2,
-    "samplerate": 44100,
-    "bits": 16
   }
 }

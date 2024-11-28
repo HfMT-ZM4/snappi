@@ -44,8 +44,6 @@ class UAC2Config(BaseModel):
     enable: bool
     name: str
     channels: int
-    samplerate: int
-    bits: int
 
 
 class Config(BaseModel):
@@ -304,13 +302,13 @@ def update_uac2_config(config: Config):
     uac2 = config.uac2
     if uac2:
         channel_mask = int('1' * uac2.channels, 2)
-        sample_size = uac2.bits // 8
+        sample_size = config.bits // 8
         enable = 'yes' if uac2.enable else 'no'
         serial = str(hashlib.md5(
             '-'.join([
                 uac2.name,
-                str(uac2.samplerate),
-                str(uac2.bits),
+                str(config.samplerate),
+                str(config.bits),
                 str(uac2.channels),
             ]).encode()
         ).hexdigest())
@@ -319,7 +317,7 @@ def update_uac2_config(config: Config):
             UAC2_NAME="{uac2.name} ({config.hostname})"
             UAC2_SERIAL="{serial}"
             UAC2_CHANNEL_MASK={channel_mask}
-            UAC2_SAMPLE_RATE={uac2.samplerate}
+            UAC2_SAMPLE_RATE={config.samplerate}
             UAC2_SAMPLE_SIZE={sample_size}
         ''')
     else:

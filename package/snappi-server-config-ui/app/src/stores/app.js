@@ -27,10 +27,7 @@ export const useAppStore = defineStore('app', {
     uac2: {
       enable: false,
       name: 'SnappiAudio',
-      serial: 1,
       channels: 2,
-      samplerate: 44100,
-      bits: 16,
     },
   }),
 
