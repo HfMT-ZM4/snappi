@@ -17,7 +17,6 @@ from .settings import settings
 
 pipewire = Pipewire()
 serverconfig = ServerConfig()
-ws_queue = asyncio.Queue()
 
 
 @asynccontextmanager
@@ -75,14 +74,33 @@ async def get_logs(services: Annotated[List[str], Query()] = [], num_lines=1000)
     return get_service_logs(services, num_lines)
 
 
+class WebsocketManager:
+    def __init__(self):
+        self.connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.connections.remove(websocket)
+
+    async def broadcast(self, message: str):
+        for connection in self.connections:
+            await connection.send_text(message)
+
+
+websocket_manager = WebsocketManager()
+
+
 @app.websocket('/api/ws')
 async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
+    await websocket_manager.connect(websocket)
     while True:
-        msg = await ws_queue.get()
         try:
-            await websocket.send_text(msg)
+            await websocket.receive_text()
         except WebSocketDisconnect as e:
+            websocket_manager.disconnect(websocket)
             break
 
 
@@ -99,7 +117,7 @@ async def update_pipewire_links():
 
 
 async def pipewire_changed():
-    await ws_queue.put('pipewire_changed')
+    await websocket_manager.broadcast('pipewire_changed')
     await update_pipewire_links()
 
 
