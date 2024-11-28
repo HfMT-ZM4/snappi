@@ -114,8 +114,11 @@ class ServerConfig:
             self.config.hostname = ci_hostname
 
         ap_conf = ci_network.get('wifis', {}).get('wlan0', {}).get('access-points', {})
-        ssid, args = list(ap_conf.items())[0]
-        psk = args.get('password')
+        try:
+            ssid, args = list(ap_conf.items())[0]
+            psk = args.get('password')
+        except Exception:
+            ssid = psk = None
         if ssid and psk:
             self.config.wifi.ssid = ssid
             self.config.wifi.password = psk
