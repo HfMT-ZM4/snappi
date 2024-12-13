@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PYTHON_OSC
+	bool "python-osc"
+	help
+	  OSC implementation for python
+
