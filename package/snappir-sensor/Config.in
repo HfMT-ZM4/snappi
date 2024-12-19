@@ -1,0 +1,8 @@
+config BR2_PACKAGE_SNAPPIR_SENSOR
+	bool "snappir-sensor"
+    select BR2_PACKAGE_PYTHON3
+        help
+	  Snappi Client PIR sensor
+
+
+

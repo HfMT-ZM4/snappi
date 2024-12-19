@@ -1,0 +1,40 @@
+#!/usr/bin/python
+
+import time
+import argparse
+
+from pathlib import Path
+from gpiozero import MotionSensor
+from gpiozero.pins.native import NativeFactory
+from pythonosc.udp_client import SimpleUDPClient
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('server', help='server name or ip of OSC host')
+    parser.add_argument('port', help='OSC port to use', type=int)
+    parser.add_argument('-n', '--name', help='my name, default to hostname')
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+
+    name = args.name
+    if not name:
+        name = Path('/etc/hostname').read_text()
+    osc_msg = f'/motion/{name}'
+
+    factory = NativeFactory()
+    pir = MotionSensor(4, pull_up=False, pin_factory=factory)
+
+    client = SimpleUDPClient(args.server, args.port)
+    client.send_message(osc_msg, 0)
+
+    while True:
+      pir.wait_for_motion()
+      client.send_message(osc_msg, 1)
+      pir.wait_for_no_motion()
+      client.send_message(osc_msg, 0)
+      time.sleep(0.2)
+
+main()
