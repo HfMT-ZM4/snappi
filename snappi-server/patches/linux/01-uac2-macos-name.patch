@@ -1,0 +1,13 @@
+diff --git a/drivers/usb/gadget/function/f_uac2.c b/drivers/usb/gadget/function/f_uac2.c
+index 0219cd794..6c35dcd74 100644
+--- a/drivers/usb/gadget/function/f_uac2.c
++++ b/drivers/usb/gadget/function/f_uac2.c
+@@ -117,7 +117,7 @@ static struct usb_string strings_fn[] = {
+ 	[STR_IO_OT].s = "USBD In",
+ 	[STR_FU_IN].s = "Capture Volume",
+ 	[STR_FU_OUT].s = "Playback Volume",
+-	[STR_AS_OUT_ALT0].s = "Playback Inactive",
++	[STR_AS_OUT_ALT0].s = "Snappi Audio",
+ 	[STR_AS_OUT_ALT1].s = "Playback Active",
+ 	[STR_AS_IN_ALT0].s = "Capture Inactive",
+ 	[STR_AS_IN_ALT1].s = "Capture Active",
