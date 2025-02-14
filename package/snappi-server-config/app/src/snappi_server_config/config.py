@@ -99,7 +99,7 @@ class ServerConfig:
 
     def apply_cloud_init_data(self):
         user_data_path = settings.root_path / CLOUD_INIT_USER_DATA_FILE
-        network_config_path = settings.root_path / CLOUD_INIT_USER_DATA_FILE
+        network_config_path = settings.root_path / CLOUD_INIT_NETWORK_CONFIG_FILE
 
         ci_user = read_yaml(user_data_path)
         ci_network = read_yaml(network_config_path)
